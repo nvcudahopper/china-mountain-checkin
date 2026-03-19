@@ -59,7 +59,7 @@ interface User {
 }
 
 // ============= Mountain data (inline import) =============
-import { mountainData } from "../server/mountainData";
+import { mountainData } from "./mountainData";
 
 // ============= In-memory storage =============
 class MemStorage {
