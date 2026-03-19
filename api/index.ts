@@ -1,17 +1,67 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import type {
-  Mountain,
-  InsertMountain,
-  CheckinLog,
-  InsertCheckinLog,
-  Comment,
-  InsertComment,
-  User,
-  InsertUser,
-} from "../shared/schema";
+
+// ============= Inline types (avoid importing from shared/schema which depends on drizzle-orm) =============
+interface Mountain {
+  id: number;
+  name: string;
+  province: string;
+  elevation: number;
+  category: string;
+  ticketPrice: number | null;
+  difficulty: string;
+  duration: string;
+  description: string | null;
+  highlights: string[] | null;
+  culturalBackground: string | null;
+  bestMonths: unknown;
+  seasonNotes: string | null;
+  routes: unknown;
+  tips: unknown;
+  foods: unknown;
+  transport: unknown;
+  photoSpots: string[] | null;
+  latitude: string | null;
+  longitude: string | null;
+  imageUrl: string | null;
+  photos?: unknown;
+}
+
+interface CheckinLog {
+  id: number;
+  mountainId: number;
+  userId: string;
+  date: string;
+  status: string;
+  companions: string[] | null;
+  weather: string | null;
+  notes: string | null;
+  rating: number | null;
+  routeName: string | null;
+  expenses: unknown;
+  photos: string[] | null;
+  createdAt: string | null;
+}
+
+interface Comment {
+  id: number;
+  checkinId: number;
+  userId: string;
+  userName: string;
+  content: string;
+  createdAt: string | null;
+}
+
+interface User {
+  id: number;
+  userId: string;
+  name: string;
+  avatar: string | null;
+}
+
+// ============= Mountain data (inline import) =============
 import { mountainData } from "../server/mountainData";
 
-// ============= In-memory storage (re-created per cold start) =============
+// ============= In-memory storage =============
 class MemStorage {
   mountains: Mountain[] = [];
   checkinLogs: Map<number, CheckinLog> = new Map();
@@ -22,22 +72,24 @@ class MemStorage {
   nextUserId = 1;
 
   constructor() {
-    this.mountains = mountainData.map((m, i) => ({
+    this.mountains = (mountainData as any[]).map((m, i) => ({
       ...m,
       id: i + 1,
       highlights: m.highlights || null,
       photoSpots: m.photoSpots || null,
       photos: null,
-    })) as Mountain[];
+    }));
 
-    const defaultUsers: InsertUser[] = [
+    [
       { userId: "user1", name: "山行者", avatar: "🏔️" },
       { userId: "user2", name: "云端客", avatar: "⛅" },
       { userId: "user3", name: "徒步达人", avatar: "🥾" },
-    ];
-    defaultUsers.forEach((u) => this.createUser(u));
+    ].forEach((u) => {
+      const id = this.nextUserId++;
+      this.users.set(u.userId, { ...u, id });
+    });
 
-    const sampleLogs: InsertCheckinLog[] = [
+    const sampleLogs: Omit<CheckinLog, "id">[] = [
       {
         mountainId: 1, userId: "user1", date: "2025-10-15", status: "completed",
         companions: ["云端客", "徒步达人"], weather: "晴朗",
@@ -85,42 +137,16 @@ class MemStorage {
         expenses: null, photos: [], createdAt: "2026-03-10T10:00:00Z",
       },
     ];
-    sampleLogs.forEach((l) => this.createCheckinLog(l));
-  }
-
-  createUser(user: InsertUser): User {
-    const id = this.nextUserId++;
-    const newUser: User = { ...user, id };
-    this.users.set(user.userId, newUser);
-    return newUser;
-  }
-
-  createCheckinLog(log: InsertCheckinLog): CheckinLog {
-    const id = this.nextCheckinId++;
-    const newLog: CheckinLog = {
-      ...log,
-      id,
-      createdAt: log.createdAt || new Date().toISOString(),
-    } as CheckinLog;
-    this.checkinLogs.set(id, newLog);
-    return newLog;
-  }
-
-  createComment(comment: InsertComment): Comment {
-    const id = this.nextCommentId++;
-    const newComment: Comment = {
-      ...comment,
-      id,
-      createdAt: comment.createdAt || new Date().toISOString(),
-    };
-    this.comments.set(id, newComment);
-    return newComment;
+    sampleLogs.forEach((l) => {
+      const id = this.nextCheckinId++;
+      this.checkinLogs.set(id, { ...l, id });
+    });
   }
 }
 
 const storage = new MemStorage();
 
-// ============= URL parsing helper =============
+// ============= URL parsing =============
 function parsePath(url: string): { segments: string[]; query: Record<string, string> } {
   const [pathname, qs] = url.split("?");
   const segments = pathname.replace(/^\/api\/?/, "").split("/").filter(Boolean);
@@ -128,15 +154,14 @@ function parsePath(url: string): { segments: string[]; query: Record<string, str
   if (qs) {
     for (const part of qs.split("&")) {
       const [k, v] = part.split("=");
-      query[decodeURIComponent(k)] = decodeURIComponent(v || "");
+      if (k) query[decodeURIComponent(k)] = decodeURIComponent(v || "");
     }
   }
   return { segments, query };
 }
 
-// ============= Main handler =============
+// ============= Handler =============
 export default function handler(req: VercelRequest, res: VercelResponse) {
-  // CORS
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,PATCH,DELETE,OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -190,8 +215,10 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
 
     // POST /api/checkins
     if (segments[0] === "checkins" && method === "POST") {
-      const log = storage.createCheckinLog(req.body);
-      return res.status(201).json(log);
+      const id = storage.nextCheckinId++;
+      const newLog: CheckinLog = { ...req.body, id, createdAt: req.body.createdAt || new Date().toISOString() };
+      storage.checkinLogs.set(id, newLog);
+      return res.status(201).json(newLog);
     }
 
     // PATCH /api/checkins/:id
@@ -223,8 +250,10 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
 
     // POST /api/comments
     if (segments[0] === "comments" && method === "POST") {
-      const comment = storage.createComment(req.body);
-      return res.status(201).json(comment);
+      const id = storage.nextCommentId++;
+      const newComment: Comment = { ...req.body, id, createdAt: req.body.createdAt || new Date().toISOString() };
+      storage.comments.set(id, newComment);
+      return res.status(201).json(newComment);
     }
 
     // GET /api/users
@@ -242,9 +271,7 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
     // GET /api/stats/:userId
     if (segments[0] === "stats" && segments[1] && method === "GET") {
       const userId = segments[1];
-      const logs = Array.from(storage.checkinLogs.values()).filter(
-        (l) => l.userId === userId
-      );
+      const logs = Array.from(storage.checkinLogs.values()).filter((l) => l.userId === userId);
       const mountains = storage.mountains;
 
       const completed = logs.filter((l) => l.status === "completed");
@@ -252,9 +279,7 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
       const wishlist = logs.filter((l) => l.status === "wishlist");
 
       const completedMountainIds = new Set(completed.map((l) => l.mountainId));
-      const completedMountains = mountains.filter((m) =>
-        completedMountainIds.has(m.id)
-      );
+      const completedMountains = mountains.filter((m) => completedMountainIds.has(m.id));
 
       const categories = ["五岳", "佛教名山", "道教名山", "徒步", "地貌/网红"];
       const categoryStats = categories.map((cat) => {
@@ -263,11 +288,7 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
         return { category: cat, total, done };
       });
 
-      const totalElevation = completedMountains.reduce(
-        (sum, m) => sum + m.elevation,
-        0
-      );
-
+      const totalElevation = completedMountains.reduce((sum, m) => sum + m.elevation, 0);
       const totalExpenses = completed.reduce((sum, l) => {
         if (l.expenses && typeof l.expenses === "object") {
           const exp = l.expenses as Record<string, number>;

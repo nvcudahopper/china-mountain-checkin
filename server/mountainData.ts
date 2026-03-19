@@ -1,6 +1,4 @@
-import type { InsertMountain } from "../shared/schema";
-
-export const mountainData: InsertMountain[] = [
+export const mountainData: any[] = [
   // ===== 五岳 =====
   {
     name: "华山", province: "陕西", elevation: 2154, category: "五岳",
