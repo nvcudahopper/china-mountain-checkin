@@ -70,7 +70,7 @@ export function CheckinForm() {
     notes: "",
     rating: 0,
     routeName: "",
-    steps: 0,
+    steps: {} as Record<string, number>,
     expenses: { ticket: 0, food: 0, transport: 0, accommodation: 0 },
     companionInput: "",
   });
@@ -80,16 +80,21 @@ export function CheckinForm() {
   useEffect(() => {
     if (isEditMode && existingCheckin && !formLoaded) {
       const expenses = existingCheckin.expenses as Record<string, number> | null;
-      // Support both old `date` and new `startDate`/`endDate` fields
       const ec = existingCheckin as any;
       const startDate = ec.startDate || ec.date || today;
       const endDate = ec.endDate || startDate;
-      // weather can be a string (old) or array (new)
       let weatherArr: string[] = [];
       if (Array.isArray(ec.weather)) {
         weatherArr = ec.weather;
       } else if (typeof ec.weather === "string" && ec.weather) {
         weatherArr = [ec.weather];
+      }
+      // steps: support old integer format and new {date: steps} format
+      let stepsObj: Record<string, number> = {};
+      if (ec.steps && typeof ec.steps === "object" && !Array.isArray(ec.steps)) {
+        stepsObj = ec.steps;
+      } else if (typeof ec.steps === "number" && ec.steps > 0) {
+        stepsObj = { [startDate]: ec.steps };
       }
       setForm({
         mountainId: existingCheckin.mountainId,
@@ -101,7 +106,7 @@ export function CheckinForm() {
         notes: existingCheckin.notes || "",
         rating: existingCheckin.rating || 0,
         routeName: existingCheckin.routeName || "",
-        steps: ec.steps || 0,
+        steps: stepsObj,
         expenses: {
           ticket: expenses?.ticket || 0,
           food: expenses?.food || 0,
@@ -117,6 +122,28 @@ export function CheckinForm() {
   const selectedMountain = mountains.find(m => m.id === (isEditMode ? form.mountainId : mountainId || form.mountainId));
   const routes = selectedMountain?.routes as Array<{ name: string }> | null;
   const tripDays = useMemo(() => calcDays(form.startDate, form.endDate), [form.startDate, form.endDate]);
+
+  // Generate list of dates for per-day step input
+  const tripDates = useMemo(() => {
+    const dates: string[] = [];
+    if (!form.startDate) return dates;
+    const start = new Date(form.startDate);
+    const end = new Date(form.endDate || form.startDate);
+    const cur = new Date(start);
+    while (cur <= end) {
+      dates.push(cur.toISOString().split("T")[0]);
+      cur.setDate(cur.getDate() + 1);
+    }
+    return dates;
+  }, [form.startDate, form.endDate]);
+
+  const totalSteps = useMemo(() => {
+    return Object.values(form.steps).reduce((sum, v) => sum + (v || 0), 0);
+  }, [form.steps]);
+
+  const setDaySteps = (date: string, value: number) => {
+    setForm(f => ({ ...f, steps: { ...f.steps, [date]: value } }));
+  };
 
   const toggleWeather = (value: string) => {
     setForm(f => ({
@@ -391,27 +418,42 @@ export function CheckinForm() {
           </Card>
         )}
 
-        {/* Steps */}
+        {/* Steps - per day */}
         {form.status === "completed" && (
           <Card className="bg-card border-card-border">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm text-primary flex items-center gap-1.5">
-                <Footprints className="w-4 h-4" />步数
+                <Footprints className="w-4 h-4" />步数记录
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <Input
-                type="number"
-                placeholder="如：28000"
-                value={form.steps || ""}
-                onChange={e => setForm(f => ({ ...f, steps: parseInt(e.target.value) || 0 }))}
-                className="bg-background border-border"
-                data-testid="input-steps"
-              />
-              {form.steps > 0 && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  约 {(form.steps * 0.7 / 1000).toFixed(1)} 公里
-                </p>
+              <div className="space-y-2">
+                {tripDates.map((date, idx) => (
+                  <div key={date} className="flex items-center gap-2">
+                    <label className="text-xs text-muted-foreground shrink-0 w-24">
+                      {tripDays === 1 ? "当天" : `第${idx + 1}天 (${date.slice(5)})`}
+                    </label>
+                    <Input
+                      type="number"
+                      placeholder="0"
+                      value={form.steps[date] || ""}
+                      onChange={e => setDaySteps(date, parseInt(e.target.value) || 0)}
+                      className="bg-background border-border"
+                      data-testid={`input-steps-${date}`}
+                    />
+                  </div>
+                ))}
+              </div>
+              {totalSteps > 0 && (
+                <div className="mt-3 pt-2 border-t border-border flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">合计</span>
+                  <span className="text-sm font-medium text-primary">
+                    {totalSteps.toLocaleString()} 步
+                    <span className="text-xs text-muted-foreground ml-1.5">
+                      ≈ {(totalSteps * 0.7 / 1000).toFixed(1)} km
+                    </span>
+                  </span>
+                </div>
               )}
             </CardContent>
           </Card>

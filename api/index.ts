@@ -303,9 +303,15 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
         return sum + diff;
       }, 0);
 
-      // Calculate total steps
+      // Calculate total steps (supports both old integer and new {date: steps} format)
       const totalSteps = completed.reduce((sum, l) => {
-        return sum + ((l as any).steps || 0);
+        const s = (l as any).steps;
+        if (!s) return sum;
+        if (typeof s === "number") return sum + s;
+        if (typeof s === "object") {
+          return sum + Object.values(s).reduce((a: number, v: any) => a + (Number(v) || 0), 0);
+        }
+        return sum;
       }, 0);
 
       return res.json({

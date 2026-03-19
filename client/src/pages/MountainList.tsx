@@ -10,10 +10,10 @@ import { apiRequest } from "@/lib/queryClient";
 const BASE_CATEGORIES = ["五岳", "佛教名山", "道教名山", "徒步", "地貌/网红", "其他山头"];
 
 const DIFFICULTY_COLORS: Record<string, string> = {
-  "简单": "bg-green-900/40 text-green-400 border-green-800/50",
-  "中等": "bg-yellow-900/40 text-yellow-400 border-yellow-800/50",
-  "困难": "bg-orange-900/40 text-orange-400 border-orange-800/50",
-  "专业": "bg-red-900/40 text-red-400 border-red-800/50",
+  "简单": "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/40 dark:text-green-400 dark:border-green-800/50",
+  "中等": "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/40 dark:text-yellow-400 dark:border-yellow-800/50",
+  "困难": "bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/40 dark:text-orange-400 dark:border-orange-800/50",
+  "专业": "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/40 dark:text-red-400 dark:border-red-800/50",
 };
 
 const CATEGORY_EMOJI: Record<string, string> = {

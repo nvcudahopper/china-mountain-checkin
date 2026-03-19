@@ -2,59 +2,59 @@
 @tailwind components;
 @tailwind utilities;
 
-/* BLACK-GOLD MOUNTAIN THEME — Dark atmospheric backgrounds + warm gold accents */
+/* MOUNTAIN THEME — Light: warm parchment + gold | Dark: atmospheric black + gold */
 :root {
   --button-outline: rgba(0,0,0, .10);
   --badge-outline: rgba(0,0,0, .05);
   --opaque-button-border-intensity: -8;
   --elevate-1: rgba(0,0,0, .03);
   --elevate-2: rgba(0,0,0, .08);
-  --background: 30 10% 8%;
-  --foreground: 40 20% 90%;
-  --border: 35 10% 18%;
-  --card: 30 8% 11%;
-  --card-foreground: 40 20% 90%;
-  --card-border: 35 8% 16%;
-  --sidebar: 30 8% 10%;
-  --sidebar-foreground: 40 20% 90%;
-  --sidebar-border: 35 8% 15%;
-  --sidebar-primary: 42 80% 55%;
-  --sidebar-primary-foreground: 30 10% 8%;
-  --sidebar-accent: 35 10% 16%;
-  --sidebar-accent-foreground: 40 20% 90%;
-  --sidebar-ring: 42 80% 55%;
-  --popover: 30 8% 12%;
-  --popover-foreground: 40 20% 90%;
-  --popover-border: 35 8% 18%;
-  --primary: 42 80% 55%;
-  --primary-foreground: 30 10% 8%;
-  --secondary: 35 8% 16%;
-  --secondary-foreground: 40 15% 75%;
-  --muted: 35 6% 18%;
-  --muted-foreground: 40 8% 55%;
-  --accent: 42 30% 18%;
-  --accent-foreground: 42 60% 75%;
-  --destructive: 0 70% 45%;
-  --destructive-foreground: 0 0% 98%;
-  --input: 35 8% 22%;
-  --ring: 42 80% 55%;
-  --chart-1: 42 80% 55%;
-  --chart-2: 25 70% 50%;
-  --chart-3: 160 40% 40%;
-  --chart-4: 200 50% 45%;
-  --chart-5: 0 60% 50%;
+  --background: 36 30% 96%;
+  --foreground: 30 15% 15%;
+  --border: 35 20% 86%;
+  --card: 38 35% 98%;
+  --card-foreground: 30 15% 15%;
+  --card-border: 35 18% 88%;
+  --sidebar: 36 28% 95%;
+  --sidebar-foreground: 30 15% 15%;
+  --sidebar-border: 35 18% 88%;
+  --sidebar-primary: 42 75% 42%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 35 20% 90%;
+  --sidebar-accent-foreground: 30 15% 15%;
+  --sidebar-ring: 42 75% 42%;
+  --popover: 38 35% 98%;
+  --popover-foreground: 30 15% 15%;
+  --popover-border: 35 18% 88%;
+  --primary: 42 75% 42%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 35 18% 90%;
+  --secondary-foreground: 30 10% 35%;
+  --muted: 35 15% 92%;
+  --muted-foreground: 30 8% 50%;
+  --accent: 42 25% 88%;
+  --accent-foreground: 42 50% 30%;
+  --destructive: 0 70% 50%;
+  --destructive-foreground: 0 0% 100%;
+  --input: 35 15% 90%;
+  --ring: 42 75% 42%;
+  --chart-1: 42 75% 42%;
+  --chart-2: 25 60% 45%;
+  --chart-3: 160 40% 35%;
+  --chart-4: 200 50% 40%;
+  --chart-5: 0 60% 45%;
   --font-sans: 'Noto Sans SC', 'Inter', sans-serif;
   --font-serif: Georgia, serif;
   --font-mono: 'JetBrains Mono', monospace;
   --radius: .625rem;
-  --shadow-2xs: 0px 1px 2px 0px hsl(0 0% 0% / 0.20);
-  --shadow-xs: 0px 1px 3px 0px hsl(0 0% 0% / 0.25);
-  --shadow-sm: 0px 2px 4px 0px hsl(0 0% 0% / 0.20), 0px 1px 2px -1px hsl(0 0% 0% / 0.15);
-  --shadow: 0px 4px 6px 0px hsl(0 0% 0% / 0.20), 0px 2px 4px -1px hsl(0 0% 0% / 0.15);
-  --shadow-md: 0px 6px 10px 0px hsl(0 0% 0% / 0.20), 0px 4px 6px -1px hsl(0 0% 0% / 0.15);
-  --shadow-lg: 0px 10px 15px 0px hsl(0 0% 0% / 0.25), 0px 6px 10px -1px hsl(0 0% 0% / 0.20);
-  --shadow-xl: 0px 16px 25px 0px hsl(0 0% 0% / 0.30), 0px 10px 15px -1px hsl(0 0% 0% / 0.25);
-  --shadow-2xl: 0px 25px 50px 0px hsl(0 0% 0% / 0.40);
+  --shadow-2xs: 0px 1px 2px 0px hsl(0 0% 0% / 0.06);
+  --shadow-xs: 0px 1px 3px 0px hsl(0 0% 0% / 0.08);
+  --shadow-sm: 0px 2px 4px 0px hsl(0 0% 0% / 0.06), 0px 1px 2px -1px hsl(0 0% 0% / 0.04);
+  --shadow: 0px 4px 6px 0px hsl(0 0% 0% / 0.06), 0px 2px 4px -1px hsl(0 0% 0% / 0.04);
+  --shadow-md: 0px 6px 10px 0px hsl(0 0% 0% / 0.06), 0px 4px 6px -1px hsl(0 0% 0% / 0.04);
+  --shadow-lg: 0px 10px 15px 0px hsl(0 0% 0% / 0.08), 0px 6px 10px -1px hsl(0 0% 0% / 0.06);
+  --shadow-xl: 0px 16px 25px 0px hsl(0 0% 0% / 0.10), 0px 10px 15px -1px hsl(0 0% 0% / 0.08);
+  --shadow-2xl: 0px 25px 50px 0px hsl(0 0% 0% / 0.15);
   --tracking-normal: 0em;
   --spacing: 0.25rem;
 
@@ -67,13 +67,12 @@
   --destructive-border: hsl(var(--destructive));
 
   /* Custom gold colors */
-  --gold: 42 80% 55%;
+  --gold: 42 75% 42%;
   --gold-dim: 42 50% 35%;
-  --gold-bright: 42 90% 65%;
-  --gold-muted: 42 30% 45%;
+  --gold-bright: 42 80% 52%;
+  --gold-muted: 42 25% 55%;
 }
 
-/* This is a dark-first app, no separate .dark class needed */
 .dark {
   --button-outline: rgba(255,255,255, .10);
   --badge-outline: rgba(255,255,255, .05);
@@ -147,24 +146,30 @@
   }
 }
 
-/* Custom scrollbar for dark theme */
+/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: hsl(30 10% 8%);
+  background: hsl(var(--background));
 }
 ::-webkit-scrollbar-thumb {
-  background: hsl(35 8% 22%);
+  background: hsl(var(--border));
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(42 30% 30%);
+  background: hsl(var(--muted-foreground));
 }
 
 /* Gold gradient text utility */
 .text-gold-gradient {
+  background: linear-gradient(135deg, hsl(42, 75%, 42%), hsl(42, 80%, 52%), hsl(35, 65%, 38%));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.dark .text-gold-gradient {
   background: linear-gradient(135deg, hsl(42, 80%, 55%), hsl(42, 90%, 70%), hsl(35, 70%, 50%));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -178,7 +183,7 @@
 }
 
 .skeleton {
-  background: linear-gradient(90deg, hsl(35 8% 14%) 25%, hsl(35 8% 18%) 50%, hsl(35 8% 14%) 75%);
+  background: linear-gradient(90deg, hsl(var(--muted)) 25%, hsl(var(--border)) 50%, hsl(var(--muted)) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
 }

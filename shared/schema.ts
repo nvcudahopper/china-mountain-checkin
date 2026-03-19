@@ -40,7 +40,7 @@ export const checkinLogs = pgTable("checkin_logs", {
   notes: text("notes"),
   rating: integer("rating"),
   routeName: text("route_name"),
-  steps: integer("steps"),
+  steps: jsonb("steps"),
   expenses: jsonb("expenses"),
   photos: text("photos").array(),
   createdAt: text("created_at"),

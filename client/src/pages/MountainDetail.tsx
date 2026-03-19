@@ -11,10 +11,10 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
 const DIFFICULTY_COLORS: Record<string, string> = {
-  "简单": "bg-green-900/40 text-green-400 border-green-800/50",
-  "中等": "bg-yellow-900/40 text-yellow-400 border-yellow-800/50",
-  "困难": "bg-orange-900/40 text-orange-400 border-orange-800/50",
-  "专业": "bg-red-900/40 text-red-400 border-red-800/50",
+  "简单": "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/40 dark:text-green-400 dark:border-green-800/50",
+  "中等": "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/40 dark:text-yellow-400 dark:border-yellow-800/50",
+  "困难": "bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/40 dark:text-orange-400 dark:border-orange-800/50",
+  "专业": "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/40 dark:text-red-400 dark:border-red-800/50",
 };
 
 const MONTH_NAMES = ["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月"];
@@ -410,7 +410,16 @@ export function MountainDetail() {
                 "晴": "☀️", "多云": "⛅", "阴": "☁️", "小雨": "🌦️",
                 "大雨": "🌧️", "雷阵雨": "⛈️", "雪": "❄️", "雾": "🌫️", "大风": "💨",
               };
-              const steps = logAny.steps || 0;
+              // steps: support both old integer and new {date: steps} object
+              const stepsRaw = logAny.steps;
+              const totalSteps = (() => {
+                if (!stepsRaw) return 0;
+                if (typeof stepsRaw === "number") return stepsRaw;
+                if (typeof stepsRaw === "object") {
+                  return Object.values(stepsRaw).reduce((s: number, v: any) => s + (Number(v) || 0), 0);
+                }
+                return 0;
+              })();
 
               return (
               <Card key={log.id} className="bg-card border-card-border">
@@ -479,7 +488,7 @@ export function MountainDetail() {
                     {weatherArr.length > 0 && (
                       <span>{weatherArr.map(w => WEATHER_ICON_MAP[w] || w).join(" ")}</span>
                     )}
-                    {steps > 0 && <span>📱 {steps.toLocaleString()} 步</span>}
+                    {totalSteps > 0 && <span>👟 {totalSteps.toLocaleString()} 步</span>}
                     {log.routeName && <span>🥾 {log.routeName}</span>}
                     {log.companions && log.companions.length > 0 && (
                       <span>👥 {log.companions.join("、")}</span>
@@ -654,9 +663,9 @@ function PhotoCarousel({ photos, name }: { photos: string[]; name: string }) {
 
 function StatusBadge({ status }: { status: string }) {
   const config: Record<string, { label: string; className: string }> = {
-    completed: { label: "✅ 已去", className: "bg-green-900/40 text-green-400 border-green-800/50" },
-    planned: { label: "📅 计划中", className: "bg-blue-900/40 text-blue-400 border-blue-800/50" },
-    wishlist: { label: "💭 想去", className: "bg-purple-900/40 text-purple-400 border-purple-800/50" },
+    completed: { label: "✅ 已去", className: "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/40 dark:text-green-400 dark:border-green-800/50" },
+    planned: { label: "📅 计划中", className: "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/40 dark:text-blue-400 dark:border-blue-800/50" },
+    wishlist: { label: "💭 想去", className: "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/40 dark:text-purple-400 dark:border-purple-800/50" },
   };
   const c = config[status] || config.wishlist;
   return <Badge variant="outline" className={`text-[10px] ${c.className}`}>{c.label}</Badge>;

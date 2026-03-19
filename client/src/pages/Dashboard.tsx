@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Mountain, TrendingUp, Target, MapPin, Star, Calendar, Trophy, ChevronRight, Footprints, CalendarDays } from "lucide-react";
@@ -243,6 +244,16 @@ function ChinaMapSimple({ completedIds, plannedIds, wishlistIds, mountains }: {
   wishlistIds: number[];
   mountains: MountainType[];
 }) {
+  // Listen for theme changes so map re-renders with correct colors
+  const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains("dark"));
+  useEffect(() => {
+    const obs = new MutationObserver(() => {
+      setIsDark(document.documentElement.classList.contains("dark"));
+    });
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => obs.disconnect();
+  }, []);
+
   // Simplified mapping of lat/lng to rough x,y on a 400x360 canvas
   // China roughly: lat 18-53, lng 73-135
   const mapW = 400, mapH = 340;
@@ -262,7 +273,7 @@ function ChinaMapSimple({ completedIds, plannedIds, wishlistIds, mountains }: {
       <svg viewBox={`0 0 ${mapW} ${mapH}`} className="absolute inset-0 w-full h-full">
         {/* Simple China outline - very rough */}
         <path d="M180 30 L220 25 L260 30 L300 20 L340 35 L360 50 L370 80 L380 120 L370 150 L360 170 L350 190 L370 210 L360 240 L340 260 L320 270 L300 290 L280 300 L260 310 L240 305 L220 310 L200 320 L180 310 L160 300 L140 290 L120 280 L100 260 L80 240 L60 220 L50 200 L40 180 L30 160 L35 140 L40 120 L50 100 L60 80 L80 60 L100 50 L120 40 L140 35 L160 32Z"
-          fill="none" stroke="hsl(35, 8%, 22%)" strokeWidth="1" opacity="0.5" />
+          fill="none" stroke="currentColor" strokeWidth="1" opacity="0.2" className="text-foreground" />
 
         {mountains.map(m => {
           const pos = toXY(m.latitude, m.longitude);
@@ -272,7 +283,7 @@ function ChinaMapSimple({ completedIds, plannedIds, wishlistIds, mountains }: {
           const isPlanned = plannedIds.includes(m.id);
           const isWishlist = wishlistIds.includes(m.id);
 
-          let fill = "hsl(35, 8%, 25%)"; // default gray
+          let fill = isDark ? "hsl(35, 8%, 25%)" : "hsl(35, 15%, 78%)"; // default gray
           let r = 3;
           if (isCompleted) { fill = "#22c55e"; r = 5; }
           else if (isPlanned) { fill = "#3b82f6"; r = 4; }
@@ -285,7 +296,7 @@ function ChinaMapSimple({ completedIds, plannedIds, wishlistIds, mountains }: {
               )}
               <circle cx={pos.x} cy={pos.y} r={r} fill={fill} />
               {(isCompleted || isPlanned) && (
-                <text x={pos.x} y={pos.y - r - 3} textAnchor="middle" fill="hsl(40, 20%, 90%)" fontSize="7" fontWeight="500">
+                <text x={pos.x} y={pos.y - r - 3} textAnchor="middle" fill={isDark ? "hsl(40, 20%, 90%)" : "hsl(30, 15%, 20%)"} fontSize="7" fontWeight="500">
                   {m.name}
                 </text>
               )}

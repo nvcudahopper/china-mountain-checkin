@@ -10,6 +10,7 @@ import { CheckinForm } from "./pages/CheckinForm";
 import { AdminAdd } from "./pages/AdminAdd";
 import { PerplexityAttribution } from "./components/PerplexityAttribution";
 import { Mountain, BarChart3, PlusCircle, Settings } from "lucide-react";
+import { ThemeToggle } from "./components/ThemeToggle";
 
 function AppContent() {
   const [location] = useLocation();
@@ -25,12 +26,15 @@ function AppContent() {
               <span className="text-lg font-bold text-gold-gradient">山行记</span>
             </div>
           </Link>
-          <nav className="hidden sm:flex items-center gap-1">
-            <NavLink href="/" active={location === "/"} icon={<Mountain className="w-4 h-4" />} label="名山" />
-            <NavLink href="/dashboard" active={location === "/dashboard"} icon={<BarChart3 className="w-4 h-4" />} label="看板" />
-            <NavLink href="/checkin/new" active={location.startsWith("/checkin")} icon={<PlusCircle className="w-4 h-4" />} label="打卡" />
-            <NavLink href="/admin/add" active={location.startsWith("/admin")} icon={<Settings className="w-4 h-4" />} label="管理" />
-          </nav>
+          <div className="hidden sm:flex items-center gap-1">
+            <nav className="flex items-center gap-1">
+              <NavLink href="/" active={location === "/"} icon={<Mountain className="w-4 h-4" />} label="名山" />
+              <NavLink href="/dashboard" active={location === "/dashboard"} icon={<BarChart3 className="w-4 h-4" />} label="看板" />
+              <NavLink href="/checkin/new" active={location.startsWith("/checkin")} icon={<PlusCircle className="w-4 h-4" />} label="打卡" />
+              <NavLink href="/admin/add" active={location.startsWith("/admin")} icon={<Settings className="w-4 h-4" />} label="管理" />
+            </nav>
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 
@@ -59,6 +63,7 @@ function AppContent() {
           <MobileNavLink href="/dashboard" active={location === "/dashboard"} icon={<BarChart3 className="w-5 h-5" />} label="看板" />
           <MobileNavLink href="/checkin/new" active={location.startsWith("/checkin")} icon={<PlusCircle className="w-5 h-5" />} label="打卡" />
           <MobileNavLink href="/admin/add" active={location.startsWith("/admin")} icon={<Settings className="w-5 h-5" />} label="管理" />
+          <ThemeToggle />
         </div>
       </nav>
 
