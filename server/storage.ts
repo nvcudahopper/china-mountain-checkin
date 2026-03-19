@@ -1,4 +1,4 @@
-import type { Mountain, InsertMountain, CheckinLog, InsertCheckinLog, Comment, InsertComment, User, InsertUser } from "@shared/schema";
+import type { Mountain, InsertMountain, CheckinLog, InsertCheckinLog, Comment, InsertComment, User, InsertUser } from "../shared/schema";
 import { mountainData } from "./mountainData";
 
 export interface IStorage {

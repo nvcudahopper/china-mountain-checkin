@@ -1,4 +1,4 @@
-import type { InsertMountain } from "@shared/schema";
+import type { InsertMountain } from "../shared/schema";
 
 export const mountainData: InsertMountain[] = [
   // ===== 五岳 =====
