@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
+import { put, list } from "@vercel/blob";
 
-// ============= Inline types (avoid importing from shared/schema which depends on drizzle-orm) =============
+// ============= Inline types =============
 interface Mountain {
   id: number;
   name: string;
@@ -30,16 +31,19 @@ interface CheckinLog {
   id: number;
   mountainId: number;
   userId: string;
-  date: string;
   status: string;
   companions: string[] | null;
-  weather: string | null;
+  weather: string | string[] | null;
   notes: string | null;
   rating: number | null;
   routeName: string | null;
   expenses: unknown;
   photos: string[] | null;
   createdAt: string | null;
+  startDate?: string;
+  endDate?: string;
+  steps?: unknown;
+  [key: string]: unknown;
 }
 
 interface Comment {
@@ -58,42 +62,94 @@ interface User {
   avatar: string | null;
 }
 
-// ============= Mountain data =============
+interface StoredData {
+  checkins: CheckinLog[];
+  comments: Comment[];
+  users: User[];
+  nextCheckinId: number;
+  nextCommentId: number;
+  nextUserId: number;
+}
+
+// ============= Mountain data (static) =============
 // @ts-ignore
 import { mountainData } from "./data.js";
 
-// ============= In-memory storage =============
-class MemStorage {
-  mountains: Mountain[] = [];
-  checkinLogs: Map<number, CheckinLog> = new Map();
-  comments: Map<number, Comment> = new Map();
-  users: Map<string, User> = new Map();
-  nextCheckinId = 1;
-  nextCommentId = 1;
-  nextUserId = 1;
+const mountains: Mountain[] = (mountainData as any[]).map((m, i) => ({
+  ...m,
+  id: i + 1,
+  highlights: m.highlights || null,
+  photoSpots: m.photoSpots || null,
+}));
 
-  constructor() {
-    this.mountains = (mountainData as any[]).map((m, i) => ({
-      ...m,
-      id: i + 1,
-      highlights: m.highlights || null,
-      photoSpots: m.photoSpots || null,
-    }));
+// ============= Blob-based persistent storage =============
+const BLOB_KEY = "mountain-tracker-data.json";
+const HAS_BLOB = !!process.env.BLOB_READ_WRITE_TOKEN;
 
-    [
-      { userId: "user1", name: "山行者", avatar: "🏔️" },
-      { userId: "user2", name: "云端客", avatar: "⛅" },
-      { userId: "user3", name: "徒步达人", avatar: "🥾" },
-    ].forEach((u) => {
-      const id = this.nextUserId++;
-      this.users.set(u.userId, { ...u, id });
-    });
+// In-memory cache to reduce blob reads within same function invocation
+let cachedData: StoredData | null = null;
 
-    // No sample check-in logs — users create their own records
-  }
+function defaultData(): StoredData {
+  return {
+    checkins: [],
+    comments: [],
+    users: [
+      { id: 1, userId: "user1", name: "山行者", avatar: "🏔️" },
+      { id: 2, userId: "user2", name: "云端客", avatar: "⛅" },
+      { id: 3, userId: "user3", name: "徒步达人", avatar: "🥾" },
+    ],
+    nextCheckinId: 1,
+    nextCommentId: 1,
+    nextUserId: 4,
+  };
 }
 
-const storage = new MemStorage();
+async function loadData(): Promise<StoredData> {
+  if (cachedData) return cachedData;
+
+  if (!HAS_BLOB) {
+    // Fallback: in-memory only (dev / no blob token)
+    cachedData = defaultData();
+    return cachedData;
+  }
+
+  try {
+    // Find the blob URL by listing with prefix
+    const { blobs } = await list({ prefix: BLOB_KEY, limit: 1 });
+    if (blobs.length > 0) {
+      // Fetch the JSON content via the blob's public URL
+      const response = await fetch(blobs[0].url);
+      if (response.ok) {
+        const text = await response.text();
+        if (text) {
+          cachedData = JSON.parse(text);
+          return cachedData!;
+        }
+      }
+    }
+  } catch (e: any) {
+    // Blob not found or parse error — start fresh
+    console.log("Blob load fallback:", e.message);
+  }
+
+  cachedData = defaultData();
+  return cachedData;
+}
+
+async function saveData(data: StoredData): Promise<void> {
+  cachedData = data;
+  if (!HAS_BLOB) return;
+
+  try {
+    await put(BLOB_KEY, JSON.stringify(data), {
+      access: "public",
+      contentType: "application/json",
+      addRandomSuffix: false,
+    });
+  } catch (e: any) {
+    console.error("Blob save error:", e.message);
+  }
+}
 
 // ============= URL parsing =============
 function parsePath(url: string): { segments: string[]; query: Record<string, string> } {
@@ -110,7 +166,7 @@ function parsePath(url: string): { segments: string[]; query: Record<string, str
 }
 
 // ============= Handler =============
-export default function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,PATCH,DELETE,OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -122,7 +178,7 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
   try {
     // GET /api/mountains
     if (segments[0] === "mountains" && !segments[1] && method === "GET") {
-      let result = storage.mountains;
+      let result = mountains;
       if (query.search) {
         const q = query.search.toLowerCase();
         result = result.filter(
@@ -140,7 +196,7 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
     // POST /api/mountains (create new mountain)
     if (segments[0] === "mountains" && !segments[1] && method === "POST") {
       const body = req.body;
-      const maxId = storage.mountains.reduce((max, m) => Math.max(max, m.id), 0);
+      const maxId = mountains.reduce((max, m) => Math.max(max, m.id), 0);
       const newMountain: Mountain = {
         id: maxId + 1,
         name: body.name || "",
@@ -165,27 +221,30 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
         imageUrl: body.imageUrl || null,
         photos: null,
       };
-      storage.mountains.push(newMountain);
+      mountains.push(newMountain);
       return res.status(201).json(newMountain);
     }
 
     // GET /api/mountains/:id
     if (segments[0] === "mountains" && segments[1] && method === "GET") {
-      const mountain = storage.mountains.find((m) => m.id === parseInt(segments[1]));
+      const mountain = mountains.find((m) => m.id === parseInt(segments[1]));
       if (!mountain) return res.status(404).json({ error: "Mountain not found" });
       return res.json(mountain);
     }
 
     // GET /api/categories (dynamic)
     if (segments[0] === "categories" && method === "GET") {
-      const cats = new Set(storage.mountains.map((m) => m.category));
+      const cats = new Set(mountains.map((m) => m.category));
       ["五岳", "佛教名山", "道教名山", "徒步", "地貌/网红", "其他山头"].forEach((c) => cats.add(c));
       return res.json(Array.from(cats));
     }
 
+    // ===== Checkins (persistent via Blob) =====
+    const data = await loadData();
+
     // GET /api/checkins
     if (segments[0] === "checkins" && !segments[1] && method === "GET") {
-      let logs = Array.from(storage.checkinLogs.values());
+      let logs = data.checkins;
       if (query.mountainId) {
         logs = logs.filter((l) => l.mountainId === parseInt(query.mountainId));
       } else if (query.userId) {
@@ -196,62 +255,64 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
 
     // GET /api/checkins/:id
     if (segments[0] === "checkins" && segments[1] && method === "GET") {
-      const log = storage.checkinLogs.get(parseInt(segments[1]));
+      const log = data.checkins.find((l) => l.id === parseInt(segments[1]));
       if (!log) return res.status(404).json({ error: "Check-in log not found" });
       return res.json(log);
     }
 
     // POST /api/checkins
     if (segments[0] === "checkins" && method === "POST") {
-      const id = storage.nextCheckinId++;
+      const id = data.nextCheckinId++;
       const newLog: CheckinLog = { ...req.body, id, createdAt: req.body.createdAt || new Date().toISOString() };
-      storage.checkinLogs.set(id, newLog);
+      data.checkins.push(newLog);
+      await saveData(data);
       return res.status(201).json(newLog);
     }
 
     // PATCH /api/checkins/:id
     if (segments[0] === "checkins" && segments[1] && method === "PATCH") {
       const id = parseInt(segments[1]);
-      const existing = storage.checkinLogs.get(id);
-      if (!existing) return res.status(404).json({ error: "Check-in log not found" });
-      const updated = { ...existing, ...req.body };
-      storage.checkinLogs.set(id, updated);
-      return res.json(updated);
+      const idx = data.checkins.findIndex((l) => l.id === id);
+      if (idx === -1) return res.status(404).json({ error: "Check-in log not found" });
+      data.checkins[idx] = { ...data.checkins[idx], ...req.body };
+      await saveData(data);
+      return res.json(data.checkins[idx]);
     }
 
     // DELETE /api/checkins/:id
     if (segments[0] === "checkins" && segments[1] && method === "DELETE") {
       const id = parseInt(segments[1]);
-      const success = storage.checkinLogs.delete(id);
-      if (!success) return res.status(404).json({ error: "Check-in log not found" });
+      const idx = data.checkins.findIndex((l) => l.id === id);
+      if (idx === -1) return res.status(404).json({ error: "Check-in log not found" });
+      data.checkins.splice(idx, 1);
+      await saveData(data);
       return res.json({ success: true });
     }
 
     // GET /api/comments
     if (segments[0] === "comments" && method === "GET") {
       if (!query.checkinId) return res.status(400).json({ error: "checkinId required" });
-      const comments = Array.from(storage.comments.values()).filter(
-        (c) => c.checkinId === parseInt(query.checkinId)
-      );
+      const comments = data.comments.filter((c) => c.checkinId === parseInt(query.checkinId));
       return res.json(comments);
     }
 
     // POST /api/comments
     if (segments[0] === "comments" && method === "POST") {
-      const id = storage.nextCommentId++;
+      const id = data.nextCommentId++;
       const newComment: Comment = { ...req.body, id, createdAt: req.body.createdAt || new Date().toISOString() };
-      storage.comments.set(id, newComment);
+      data.comments.push(newComment);
+      await saveData(data);
       return res.status(201).json(newComment);
     }
 
     // GET /api/users
     if (segments[0] === "users" && !segments[1] && method === "GET") {
-      return res.json(Array.from(storage.users.values()));
+      return res.json(data.users);
     }
 
     // GET /api/users/:userId
     if (segments[0] === "users" && segments[1] && method === "GET") {
-      const user = storage.users.get(segments[1]);
+      const user = data.users.find((u) => u.userId === segments[1]);
       if (!user) return res.status(404).json({ error: "User not found" });
       return res.json(user);
     }
@@ -259,8 +320,7 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
     // GET /api/stats/:userId
     if (segments[0] === "stats" && segments[1] && method === "GET") {
       const userId = segments[1];
-      const logs = Array.from(storage.checkinLogs.values()).filter((l) => l.userId === userId);
-      const mountains = storage.mountains;
+      const logs = data.checkins.filter((l) => l.userId === userId);
 
       const completed = logs.filter((l) => l.status === "completed");
       const planned = logs.filter((l) => l.status === "planned");
@@ -287,29 +347,29 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
 
       const monthlyActivity: Record<string, number> = {};
       completed.forEach((l) => {
-        const dateStr = (l as any).startDate || (l as any).date || "";
+        const dateStr = l.startDate || "";
         const month = dateStr.substring(0, 7);
         if (month) monthlyActivity[month] = (monthlyActivity[month] || 0) + 1;
       });
 
       // Calculate total days across all completed trips
       const totalDays = completed.reduce((sum, l) => {
-        const sd = (l as any).startDate || (l as any).date;
-        const ed = (l as any).endDate || sd;
+        const sd = l.startDate;
+        const ed = l.endDate || sd;
         if (!sd) return sum;
         const start = new Date(sd);
-        const end = new Date(ed);
+        const end = new Date(ed!);
         const diff = Math.max(1, Math.round((end.getTime() - start.getTime()) / 86400000) + 1);
         return sum + diff;
       }, 0);
 
       // Calculate total steps (supports both old integer and new {date: steps} format)
       const totalSteps = completed.reduce((sum, l) => {
-        const s = (l as any).steps;
+        const s = l.steps;
         if (!s) return sum;
         if (typeof s === "number") return sum + s;
         if (typeof s === "object") {
-          return sum + Object.values(s).reduce((a: number, v: any) => a + (Number(v) || 0), 0);
+          return sum + Object.values(s as Record<string, number>).reduce((a: number, v: any) => a + (Number(v) || 0), 0);
         }
         return sum;
       }, 0);
