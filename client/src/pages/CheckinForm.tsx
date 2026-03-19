@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams, useLocation } from "wouter";
 import { ArrowLeft, Star, Calendar as CalendarIcon, Users, CloudSun, Route, Receipt, Check } from "lucide-react";
@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import type { Mountain } from "@shared/schema";
+import type { Mountain, CheckinLog } from "@shared/schema";
 
 const STATUS_OPTIONS = [
   { value: "completed", label: "✅ 已去", color: "text-green-400" },
@@ -23,6 +23,10 @@ export function CheckinForm() {
   const params = useParams();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+
+  // Determine mode: edit or create
+  const editId = params.id ? parseInt(params.id) : undefined;
+  const isEditMode = !!editId;
   const mountainId = params.mountainId ? parseInt(params.mountainId) : undefined;
 
   const { data: mountains = [] } = useQuery<Mountain[]>({
@@ -30,8 +34,12 @@ export function CheckinForm() {
     queryFn: () => apiRequest("GET", "/api/mountains").then(r => r.json()),
   });
 
-  const selectedMountain = mountains.find(m => m.id === mountainId);
-  const routes = selectedMountain?.routes as Array<{ name: string }> | null;
+  // Fetch existing checkin data in edit mode
+  const { data: existingCheckin, isLoading: isLoadingCheckin } = useQuery<CheckinLog>({
+    queryKey: ["/api/checkins", editId],
+    queryFn: () => apiRequest("GET", `/api/checkins/${editId}`).then(r => r.json()),
+    enabled: isEditMode,
+  });
 
   const [form, setForm] = useState({
     mountainId: mountainId || 0,
@@ -45,6 +53,36 @@ export function CheckinForm() {
     expenses: { ticket: 0, food: 0, transport: 0, accommodation: 0 },
     companionInput: "",
   });
+
+  const [formLoaded, setFormLoaded] = useState(false);
+
+  // Pre-fill form when editing
+  useEffect(() => {
+    if (isEditMode && existingCheckin && !formLoaded) {
+      const expenses = existingCheckin.expenses as Record<string, number> | null;
+      setForm({
+        mountainId: existingCheckin.mountainId,
+        date: existingCheckin.date,
+        status: existingCheckin.status,
+        companions: (existingCheckin.companions as string[]) || [],
+        weather: existingCheckin.weather || "",
+        notes: existingCheckin.notes || "",
+        rating: existingCheckin.rating || 0,
+        routeName: existingCheckin.routeName || "",
+        expenses: {
+          ticket: expenses?.ticket || 0,
+          food: expenses?.food || 0,
+          transport: expenses?.transport || 0,
+          accommodation: expenses?.accommodation || 0,
+        },
+        companionInput: "",
+      });
+      setFormLoaded(true);
+    }
+  }, [isEditMode, existingCheckin, formLoaded]);
+
+  const selectedMountain = mountains.find(m => m.id === (isEditMode ? form.mountainId : mountainId || form.mountainId));
+  const routes = selectedMountain?.routes as Array<{ name: string }> | null;
 
   const createMutation = useMutation({
     mutationFn: async () => {
@@ -72,6 +110,27 @@ export function CheckinForm() {
     },
   });
 
+  const editMutation = useMutation({
+    mutationFn: async () => {
+      const { companionInput, ...rest } = form;
+      const payload = {
+        ...rest,
+        userId: "user1",
+        photos: existingCheckin?.photos || [],
+      };
+      return apiRequest("PATCH", `/api/checkins/${editId}`, payload).then(r => r.json());
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/checkins"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/stats/user1"] });
+      toast({ title: "更新成功", description: "打卡记录已更新" });
+      setLocation(`/mountain/${form.mountainId}`);
+    },
+    onError: () => {
+      toast({ title: "更新失败", description: "请检查表单内容", variant: "destructive" });
+    },
+  });
+
   const addCompanion = () => {
     if (form.companionInput.trim() && !form.companions.includes(form.companionInput.trim())) {
       setForm(f => ({
@@ -86,11 +145,34 @@ export function CheckinForm() {
     setForm(f => ({ ...f, companions: f.companions.filter(c => c !== name) }));
   };
 
+  const handleSubmit = () => {
+    if (isEditMode) {
+      editMutation.mutate();
+    } else {
+      createMutation.mutate();
+    }
+  };
+
+  const isPending = createMutation.isPending || editMutation.isPending;
+  const backHref = isEditMode
+    ? `/mountain/${form.mountainId}`
+    : mountainId
+      ? `/mountain/${mountainId}`
+      : "/";
+
+  if (isEditMode && isLoadingCheckin) {
+    return (
+      <div className="max-w-2xl mx-auto px-4 py-12 text-center text-muted-foreground">
+        加载中...
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-2xl mx-auto px-4 pb-20 sm:pb-8">
       {/* Back Navigation */}
       <div className="py-4">
-        <Link href={mountainId ? `/mountain/${mountainId}` : "/"}>
+        <Link href={backHref}>
           <span className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground cursor-pointer transition-colors">
             <ArrowLeft className="w-4 h-4" />
             返回
@@ -99,12 +181,16 @@ export function CheckinForm() {
       </div>
 
       <h1 className="text-xl font-bold text-gold-gradient mb-6">
-        {selectedMountain ? `${selectedMountain.name} · 打卡记录` : "新建打卡记录"}
+        {isEditMode
+          ? `${selectedMountain?.name || ""} · 编辑记录`
+          : selectedMountain
+            ? `${selectedMountain.name} · 打卡记录`
+            : "新建打卡记录"}
       </h1>
 
       <div className="space-y-4">
-        {/* Mountain Selection (if not pre-selected) */}
-        {!mountainId && (
+        {/* Mountain Selection (if not pre-selected and not editing) */}
+        {!mountainId && !isEditMode && (
           <Card className="bg-card border-card-border">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm text-primary">选择山岳</CardTitle>
@@ -120,6 +206,18 @@ export function CheckinForm() {
                   ))}
                 </SelectContent>
               </Select>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Show mountain name when editing (read-only) */}
+        {isEditMode && selectedMountain && (
+          <Card className="bg-card border-card-border">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm text-primary">山岳</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-foreground">{selectedMountain.name} ({selectedMountain.province})</p>
             </CardContent>
           </Card>
         )}
@@ -324,14 +422,17 @@ export function CheckinForm() {
         {/* Submit */}
         <Button
           className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-12 text-base font-medium"
-          onClick={() => createMutation.mutate()}
-          disabled={createMutation.isPending || form.mountainId === 0}
+          onClick={handleSubmit}
+          disabled={isPending || form.mountainId === 0}
           data-testid="button-submit"
         >
-          {createMutation.isPending ? (
+          {isPending ? (
             <span className="flex items-center gap-2">保存中...</span>
           ) : (
-            <span className="flex items-center gap-2"><Check className="w-5 h-5" /> 保存打卡记录</span>
+            <span className="flex items-center gap-2">
+              <Check className="w-5 h-5" />
+              {isEditMode ? "更新打卡记录" : "保存打卡记录"}
+            </span>
           )}
         </Button>
       </div>

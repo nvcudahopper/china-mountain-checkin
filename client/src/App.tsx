@@ -42,6 +42,7 @@ function AppContent() {
           <Route path="/dashboard" component={Dashboard} />
           <Route path="/checkin/new" component={CheckinForm} />
           <Route path="/checkin/new/:mountainId" component={CheckinForm} />
+          <Route path="/checkin/edit/:id" component={CheckinForm} />
           <Route path="/admin/add" component={AdminAdd} />
           <Route>
             <div className="flex items-center justify-center h-[60vh] text-muted-foreground">

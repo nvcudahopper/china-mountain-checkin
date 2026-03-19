@@ -89,58 +89,7 @@ class MemStorage {
       this.users.set(u.userId, { ...u, id });
     });
 
-    const sampleLogs: Omit<CheckinLog, "id">[] = [
-      {
-        mountainId: 1, userId: "user1", date: "2025-10-15", status: "completed",
-        companions: ["云端客", "徒步达人"], weather: "晴朗",
-        notes: "夜爬华山，凌晨4点到达东峰看日出，太壮观了！长空栈道确实惊险。",
-        rating: 5, routeName: "夜爬华山",
-        expenses: { ticket: 160, food: 80, transport: 200, accommodation: 150 },
-        photos: [], createdAt: "2025-10-15T10:00:00Z",
-      },
-      {
-        mountainId: 5, userId: "user1", date: "2025-08-20", status: "completed",
-        companions: ["云端客"], weather: "多云",
-        notes: "泰山日出没看到（多云），但十八盘的体验很棒。夜爬人超多！",
-        rating: 4, routeName: "夜爬看日出",
-        expenses: { ticket: 115, food: 60, transport: 150, accommodation: 0 },
-        photos: [], createdAt: "2025-08-20T10:00:00Z",
-      },
-      {
-        mountainId: 32, userId: "user1", date: "2025-09-01", status: "completed",
-        companions: ["徒步达人"], weather: "晴",
-        notes: "黄山云海太震撼了！西海大峡谷一定要走。",
-        rating: 5, routeName: "前山上后山下",
-        expenses: { ticket: 190, food: 120, transport: 300, accommodation: 400 },
-        photos: [], createdAt: "2025-09-01T10:00:00Z",
-      },
-      {
-        mountainId: 6, userId: "user2", date: "2025-07-15", status: "completed",
-        companions: ["山行者"], weather: "多云转晴",
-        notes: "峨眉山金顶的云海和佛光都看到了，非常幸运！猴子很多要注意。",
-        rating: 5, routeName: "半程步行+索道",
-        expenses: { ticket: 160, food: 100, transport: 250, accommodation: 300 },
-        photos: [], createdAt: "2025-07-15T10:00:00Z",
-      },
-      {
-        mountainId: 22, userId: "user1", date: "2026-04-15", status: "planned",
-        companions: ["云端客", "徒步达人"], weather: null,
-        notes: "计划清明后去张家界，主要想看哈利路亚山和天门山玻璃栈道。",
-        rating: null, routeName: "国家森林公园2日游",
-        expenses: null, photos: [], createdAt: "2026-03-01T10:00:00Z",
-      },
-      {
-        mountainId: 11, userId: "user1", date: "2026-10-01", status: "wishlist",
-        companions: [], weather: null,
-        notes: "梦想去雨崩徒步，看日照金山！",
-        rating: null, routeName: "雨崩徒步（内外转）",
-        expenses: null, photos: [], createdAt: "2026-03-10T10:00:00Z",
-      },
-    ];
-    sampleLogs.forEach((l) => {
-      const id = this.nextCheckinId++;
-      this.checkinLogs.set(id, { ...l, id });
-    });
+    // No sample check-in logs — users create their own records
   }
 }
 

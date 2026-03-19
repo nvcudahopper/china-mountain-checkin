@@ -1,12 +1,14 @@
-import { useQuery } from "@tanstack/react-query";
-import { useParams, Link } from "wouter";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useParams, Link, useLocation } from "wouter";
 import { useMemo, useState, useCallback, useEffect, useRef } from "react";
-import { ArrowLeft, MapPin, TrendingUp, Ticket, Clock, Star, Calendar, Utensils, Route, AlertTriangle, Bus, Camera, Sun, CloudRain, Snowflake, Leaf, Flower2, ChevronLeft, ChevronRight as ChevronRightIcon } from "lucide-react";
+import { ArrowLeft, MapPin, TrendingUp, Ticket, Clock, Star, Calendar, Utensils, Route, AlertTriangle, Bus, Camera, Sun, CloudRain, Snowflake, Leaf, Flower2, ChevronLeft, ChevronRight as ChevronRightIcon, Pencil, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import type { Mountain, CheckinLog } from "@shared/schema";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 const DIFFICULTY_COLORS: Record<string, string> = {
   "简单": "bg-green-900/40 text-green-400 border-green-800/50",
@@ -29,6 +31,9 @@ function getMonthColor(score: number): string {
 export function MountainDetail() {
   const params = useParams();
   const id = parseInt(params.id || "0");
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const { data: mountain, isLoading } = useQuery<Mountain>({
     queryKey: ["/api/mountains", id],
@@ -38,6 +43,22 @@ export function MountainDetail() {
   const { data: checkins = [] } = useQuery<CheckinLog[]>({
     queryKey: ["/api/checkins", { mountainId: id }],
     queryFn: () => apiRequest("GET", `/api/checkins?mountainId=${id}`).then(r => r.json()),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (checkinId: number) => {
+      return apiRequest("DELETE", `/api/checkins/${checkinId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/checkins"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/stats/user1"] });
+      toast({ title: "已删除", description: "打卡记录已成功删除" });
+      setDeletingId(null);
+    },
+    onError: () => {
+      toast({ title: "删除失败", description: "请稍后再试", variant: "destructive" });
+      setDeletingId(null);
+    },
   });
 
   // Determine which tabs have content
@@ -378,13 +399,52 @@ export function MountainDetail() {
                       <span className="text-xs text-muted-foreground">{log.date}</span>
                       <StatusBadge status={log.status} />
                     </div>
-                    {log.rating && (
-                      <div className="flex items-center gap-0.5">
-                        {[1,2,3,4,5].map(s => (
-                          <Star key={s} className={`w-3 h-3 ${s <= log.rating! ? "fill-primary text-primary" : "text-border"}`} />
-                        ))}
-                      </div>
-                    )}
+                    <div className="flex items-center gap-1">
+                      {log.rating && (
+                        <div className="flex items-center gap-0.5 mr-2">
+                          {[1,2,3,4,5].map(s => (
+                            <Star key={s} className={`w-3 h-3 ${s <= log.rating! ? "fill-primary text-primary" : "text-border"}`} />
+                          ))}
+                        </div>
+                      )}
+                      <Link href={`/checkin/edit/${log.id}`}>
+                        <button
+                          className="p-1.5 rounded-md text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+                          data-testid={`button-edit-checkin-${log.id}`}
+                          title="编辑"
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                        </button>
+                      </Link>
+                      {deletingId === log.id ? (
+                        <div className="flex items-center gap-1">
+                          <button
+                            className="px-2 py-1 rounded text-[10px] bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
+                            onClick={() => deleteMutation.mutate(log.id)}
+                            disabled={deleteMutation.isPending}
+                            data-testid={`button-confirm-delete-${log.id}`}
+                          >
+                            {deleteMutation.isPending ? "删除中..." : "确认"}
+                          </button>
+                          <button
+                            className="px-2 py-1 rounded text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+                            onClick={() => setDeletingId(null)}
+                            data-testid={`button-cancel-delete-${log.id}`}
+                          >
+                            取消
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          className="p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                          onClick={() => setDeletingId(log.id)}
+                          data-testid={`button-delete-checkin-${log.id}`}
+                          title="删除"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
                   </div>
                   {log.notes && <p className="text-sm text-muted-foreground mb-2">{log.notes}</p>}
                   <div className="flex items-center gap-3 text-xs text-muted-foreground">
