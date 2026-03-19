@@ -58,8 +58,8 @@ interface User {
   avatar: string | null;
 }
 
-// ============= Mountain data (inline import) =============
-import { mountainData } from "./mountainData";
+// ============= Mountain data =============
+import mountainData from "./mountains.json";
 
 // ============= In-memory storage =============
 class MemStorage {
