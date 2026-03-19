@@ -487,5 +487,22 @@ export const mountainData: any[] = [
     transport: {"nearestAirport":"九江庐山机场","nearestStation":"庐山站","fromBeijing":"高铁约5小时","fromShanghai":"高铁约4小时","fromGuangzhou":"高铁约5小时"},
     photoSpots: ["含鄱口日出", "三叠泉", "五老峰"],
     latitude: "29.5628", longitude: "115.9867", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/f/f8/Mount_Lu_16126-Lushan_%2849052353351%29.jpg", photos: ["https://upload.wikimedia.org/wikipedia/commons/f/f8/Mount_Lu_16126-Lushan_%2849052353351%29.jpg", "https://upload.wikimedia.org/wikipedia/commons/a/aa/Mount_Lu_16138-Lushan_%2849051841448%29.jpg", "https://upload.wikimedia.org/wikipedia/commons/7/7a/Mount_Lu_16146-Lushan_%2849052567367%29.jpg"]
+  },
+
+  // ===== 其他山头 =====
+  {
+    name: "景迈山", province: "云南", elevation: 1662, category: "其他山头",
+    ticketPrice: 0, difficulty: "简单", duration: "2-3日",
+    description: "景迈山位于云南普洱市澜沧县，以万亩千年古茶林闻名于世。2023年被列入世界遗产名录，成为全球首个茶主题世界文化遗产。布朗族、傣族世代以茶为生，人、茶、林共生的文化景观独一无二。",
+    highlights: ["大平掌古茶林", "翁基古寨", "糯干古寨", "景迈大金塔日出", "云海", "芒洪八角塔", "蜂神树", "茶马古道遗址"],
+    culturalBackground: "世界文化遗产，全球首个茶主题遗产地。布朗族先民千年前发现并栽培野生茶树，形成了独特的林下茶种植体系。布朗族、傣族、哈尼族、佤族多民族和谐共处。",
+    bestMonths: {"11":5,"12":5,"1":4,"2":4,"3":5,"4":4,"5":3,"6":2,"7":2,"8":2,"9":3,"10":4},
+    seasonNotes: "11月至次年4月为最佳季节，天气干爽，茶园翠绿，云海壮观。6-9月为雨季，道路湿滑。春季可体验采茶。",
+    routes: [{"name":"景迈山古寨全线","distance":"约30km（车行+步行）","time":"2-3日","difficulty":"简单","nodes":["芒埂观景台","勐本观景台","景迈大寨","糯干古寨","翁基古寨","芒景上寨蜂神树","芒洪八角塔","大平掌古茶林"]},{"name":"哎冷山徒步","distance":"约8km","time":"3-4小时","difficulty":"简单","nodes":["芒景村","哎冷山","古茶林"]}],
+    tips: {"equipment":["运动鞋","防晒","雨具","驱蚊液"],"booking":"免门票，需提前在「景迈山旅游预约平台」公众号预约","forbidden":["景区内禁止采摘古茶树","禁止明火"],"emergency":"景区电话咨询当地旅游局","accessibility":"各村寨间有公路连接，建议自驾或包车，山路蜿蜒"},
+    foods: [{"name":"布朗族手抓饭","place":"翁基古寨","price":"30-50元","note":"少数民族特色，配酸肉、炸茶叶等"},{"name":"螃蟹脚炖鸡","place":"景迈山农家","price":"60-100元","note":"用古茶树上的寄生植物螃蟹脚炖制"},{"name":"茶香鸡","place":"景迈山农家乐","price":"50-80元","note":"普洱茶入菜，醇厚回甘"}],
+    transport: {"nearestAirport":"澜沧景迈机场（约71km）","nearestStation":"普洱站（高铁，约237km）","fromBeijing":"飞机至昆明转机至澜沧景迈机场","fromShanghai":"飞机至昆明转机至澜沧景迈机场","fromGuangzhou":"飞机至昆明转普洱高铁再包车"},
+    photoSpots: ["景迈大金塔日出观景台", "翁基古寨全景", "大平掌古茶林晨雾", "芒洪八角塔"],
+    latitude: "22.1700", longitude: "100.0100", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/1/1a/Old_Tea_Forest_of_the_Jingmai_Mountain.jpg", photos: ["https://upload.wikimedia.org/wikipedia/commons/1/1a/Old_Tea_Forest_of_the_Jingmai_Mountain.jpg", "https://upload.wikimedia.org/wikipedia/commons/8/83/%E6%BE%9C%E6%B2%A7_%E6%99%AF%E8%BF%88%E5%B1%B1%E7%B3%AF%E5%B9%B2%E5%8F%A4%E5%AF%A8_01.jpg", "https://upload.wikimedia.org/wikipedia/commons/d/d5/%E6%BE%9C%E6%B2%A7_%E6%99%AF%E8%BF%88%E5%B1%B1%E7%B9%81%E8%8A%B1%E5%A4%A7%E9%81%93.jpg"]
   }
 ];
