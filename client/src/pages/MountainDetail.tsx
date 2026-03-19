@@ -391,12 +391,40 @@ export function MountainDetail() {
                 <span className="text-xs text-primary cursor-pointer hover:underline">+ 添加记录</span>
               </Link>
             </div>
-            {checkins.length > 0 ? checkins.map(log => (
+            {checkins.length > 0 ? checkins.map(log => {
+              const logAny = log as any;
+              const startDate = logAny.startDate || logAny.date || "";
+              const endDate = logAny.endDate || startDate;
+              const isSameDay = startDate === endDate;
+              const tripDays = (() => {
+                if (!startDate) return 1;
+                const s = new Date(startDate);
+                const e = new Date(endDate);
+                return Math.max(1, Math.round((e.getTime() - s.getTime()) / 86400000) + 1);
+              })();
+              // weather: support both string (old) and array (new)
+              const weatherArr: string[] = Array.isArray(logAny.weather)
+                ? logAny.weather
+                : (typeof logAny.weather === "string" && logAny.weather ? [logAny.weather] : []);
+              const WEATHER_ICON_MAP: Record<string, string> = {
+                "晴": "☀️", "多云": "⛅", "阴": "☁️", "小雨": "🌦️",
+                "大雨": "🌧️", "雷阵雨": "⛈️", "雪": "❄️", "雾": "🌫️", "大风": "💨",
+              };
+              const steps = logAny.steps || 0;
+
+              return (
               <Card key={log.id} className="bg-card border-card-border">
                 <CardContent className="pt-4">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-muted-foreground">{log.date}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {isSameDay ? startDate : `${startDate} → ${endDate}`}
+                      </span>
+                      {!isSameDay && (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary font-medium">
+                          {tripDays}天
+                        </span>
+                      )}
                       <StatusBadge status={log.status} />
                     </div>
                     <div className="flex items-center gap-1">
@@ -447,8 +475,11 @@ export function MountainDetail() {
                     </div>
                   </div>
                   {log.notes && <p className="text-sm text-muted-foreground mb-2">{log.notes}</p>}
-                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                    {log.weather && <span>🌤 {log.weather}</span>}
+                  <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
+                    {weatherArr.length > 0 && (
+                      <span>{weatherArr.map(w => WEATHER_ICON_MAP[w] || w).join(" ")}</span>
+                    )}
+                    {steps > 0 && <span>📱 {steps.toLocaleString()} 步</span>}
                     {log.routeName && <span>🥾 {log.routeName}</span>}
                     {log.companions && log.companions.length > 0 && (
                       <span>👥 {log.companions.join("、")}</span>
@@ -465,7 +496,7 @@ export function MountainDetail() {
                   )}
                 </CardContent>
               </Card>
-            )) : (
+              );}) : (
               <div className="text-center py-8 text-muted-foreground text-sm">
                 <p>还没有打卡记录</p>
                 <Link href={`/checkin/new/${mountain.id}`}>

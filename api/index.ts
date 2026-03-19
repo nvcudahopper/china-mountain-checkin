@@ -287,9 +287,26 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
 
       const monthlyActivity: Record<string, number> = {};
       completed.forEach((l) => {
-        const month = l.date.substring(0, 7);
-        monthlyActivity[month] = (monthlyActivity[month] || 0) + 1;
+        const dateStr = (l as any).startDate || (l as any).date || "";
+        const month = dateStr.substring(0, 7);
+        if (month) monthlyActivity[month] = (monthlyActivity[month] || 0) + 1;
       });
+
+      // Calculate total days across all completed trips
+      const totalDays = completed.reduce((sum, l) => {
+        const sd = (l as any).startDate || (l as any).date;
+        const ed = (l as any).endDate || sd;
+        if (!sd) return sum;
+        const start = new Date(sd);
+        const end = new Date(ed);
+        const diff = Math.max(1, Math.round((end.getTime() - start.getTime()) / 86400000) + 1);
+        return sum + diff;
+      }, 0);
+
+      // Calculate total steps
+      const totalSteps = completed.reduce((sum, l) => {
+        return sum + ((l as any).steps || 0);
+      }, 0);
 
       return res.json({
         totalMountains: mountains.length,
@@ -299,6 +316,8 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
         categoryStats,
         totalElevation,
         totalExpenses,
+        totalDays,
+        totalSteps,
         monthlyActivity,
         completedMountainIds: Array.from(completedMountainIds),
         plannedMountainIds: planned.map((l) => l.mountainId),

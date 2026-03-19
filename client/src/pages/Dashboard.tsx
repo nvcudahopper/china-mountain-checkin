@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Mountain, TrendingUp, Target, MapPin, Star, Calendar, Trophy, ChevronRight } from "lucide-react";
+import { Mountain, TrendingUp, Target, MapPin, Star, Calendar, Trophy, ChevronRight, Footprints, CalendarDays } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import type { Mountain as MountainType, CheckinLog } from "@shared/schema";
 
@@ -62,11 +62,13 @@ export function Dashboard() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
         <KPICard icon={<Target className="w-4 h-4" />} label="已打卡" value={stats.completedCount} unit="座" color="text-green-400" />
-        <KPICard icon={<Calendar className="w-4 h-4" />} label="计划中" value={stats.plannedCount} unit="座" color="text-blue-400" />
+        <KPICard icon={<CalendarDays className="w-4 h-4" />} label="登山天数" value={stats.totalDays || 0} unit="天" color="text-cyan-400" />
+        <KPICard icon={<Footprints className="w-4 h-4" />} label="总步数" value={(stats.totalSteps || 0).toLocaleString()} unit="步" color="text-violet-400" />
         <KPICard icon={<TrendingUp className="w-4 h-4" />} label="累计海拔" value={stats.totalElevation.toLocaleString()} unit="m" color="text-primary" />
         <KPICard icon={<Star className="w-4 h-4" />} label="累计花费" value={`¥${stats.totalExpenses.toLocaleString()}`} unit="" color="text-orange-400" />
+        <KPICard icon={<Calendar className="w-4 h-4" />} label="计划中" value={stats.plannedCount} unit="座" color="text-blue-400" />
       </div>
 
       {/* Overall Progress */}
@@ -161,7 +163,14 @@ export function Dashboard() {
                     <div className="flex items-center justify-between py-2 cursor-pointer hover:bg-muted/20 rounded-lg px-2 -mx-2 transition-colors">
                       <div>
                         <p className="text-sm font-medium text-foreground">{m?.name || "未知"}</p>
-                        <p className="text-xs text-muted-foreground">{log.date}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {(() => {
+                            const la = log as any;
+                            const sd = la.startDate || la.date || "";
+                            const ed = la.endDate || sd;
+                            return sd === ed ? sd : `${sd} → ${ed}`;
+                          })()}
+                        </p>
                       </div>
                       <div className="flex items-center gap-2">
                         {log.rating && (

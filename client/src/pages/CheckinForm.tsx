@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams, useLocation } from "wouter";
-import { ArrowLeft, Star, Calendar as CalendarIcon, Users, CloudSun, Route, Receipt, Check } from "lucide-react";
+import { ArrowLeft, Star, Calendar as CalendarIcon, Users, Route, Receipt, Check, Footprints } from "lucide-react";
 import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -19,12 +19,30 @@ const STATUS_OPTIONS = [
   { value: "wishlist", label: "💭 想去", color: "text-purple-400" },
 ];
 
+const WEATHER_OPTIONS = [
+  { value: "晴", icon: "☀️", label: "晴" },
+  { value: "多云", icon: "⛅", label: "多云" },
+  { value: "阴", icon: "☁️", label: "阴" },
+  { value: "小雨", icon: "🌦️", label: "小雨" },
+  { value: "大雨", icon: "🌧️", label: "大雨" },
+  { value: "雷阵雨", icon: "⛈️", label: "雷阵雨" },
+  { value: "雪", icon: "❄️", label: "雪" },
+  { value: "雾", icon: "🌫️", label: "雾" },
+  { value: "大风", icon: "💨", label: "大风" },
+];
+
+function calcDays(start: string, end: string): number {
+  if (!start || !end) return 1;
+  const s = new Date(start);
+  const e = new Date(end);
+  return Math.max(1, Math.round((e.getTime() - s.getTime()) / 86400000) + 1);
+}
+
 export function CheckinForm() {
   const params = useParams();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
-  // Determine mode: edit or create
   const editId = params.id ? parseInt(params.id) : undefined;
   const isEditMode = !!editId;
   const mountainId = params.mountainId ? parseInt(params.mountainId) : undefined;
@@ -34,41 +52,56 @@ export function CheckinForm() {
     queryFn: () => apiRequest("GET", "/api/mountains").then(r => r.json()),
   });
 
-  // Fetch existing checkin data in edit mode
   const { data: existingCheckin, isLoading: isLoadingCheckin } = useQuery<CheckinLog>({
     queryKey: ["/api/checkins", editId],
     queryFn: () => apiRequest("GET", `/api/checkins/${editId}`).then(r => r.json()),
     enabled: isEditMode,
   });
 
+  const today = new Date().toISOString().split("T")[0];
+
   const [form, setForm] = useState({
     mountainId: mountainId || 0,
-    date: new Date().toISOString().split("T")[0],
+    startDate: today,
+    endDate: today,
     status: "completed",
     companions: [] as string[],
-    weather: "",
+    weather: [] as string[],
     notes: "",
     rating: 0,
     routeName: "",
+    steps: 0,
     expenses: { ticket: 0, food: 0, transport: 0, accommodation: 0 },
     companionInput: "",
   });
 
   const [formLoaded, setFormLoaded] = useState(false);
 
-  // Pre-fill form when editing
   useEffect(() => {
     if (isEditMode && existingCheckin && !formLoaded) {
       const expenses = existingCheckin.expenses as Record<string, number> | null;
+      // Support both old `date` and new `startDate`/`endDate` fields
+      const ec = existingCheckin as any;
+      const startDate = ec.startDate || ec.date || today;
+      const endDate = ec.endDate || startDate;
+      // weather can be a string (old) or array (new)
+      let weatherArr: string[] = [];
+      if (Array.isArray(ec.weather)) {
+        weatherArr = ec.weather;
+      } else if (typeof ec.weather === "string" && ec.weather) {
+        weatherArr = [ec.weather];
+      }
       setForm({
         mountainId: existingCheckin.mountainId,
-        date: existingCheckin.date,
+        startDate,
+        endDate,
         status: existingCheckin.status,
         companions: (existingCheckin.companions as string[]) || [],
-        weather: existingCheckin.weather || "",
+        weather: weatherArr,
         notes: existingCheckin.notes || "",
         rating: existingCheckin.rating || 0,
         routeName: existingCheckin.routeName || "",
+        steps: ec.steps || 0,
         expenses: {
           ticket: expenses?.ticket || 0,
           food: expenses?.food || 0,
@@ -83,6 +116,16 @@ export function CheckinForm() {
 
   const selectedMountain = mountains.find(m => m.id === (isEditMode ? form.mountainId : mountainId || form.mountainId));
   const routes = selectedMountain?.routes as Array<{ name: string }> | null;
+  const tripDays = useMemo(() => calcDays(form.startDate, form.endDate), [form.startDate, form.endDate]);
+
+  const toggleWeather = (value: string) => {
+    setForm(f => ({
+      ...f,
+      weather: f.weather.includes(value)
+        ? f.weather.filter(w => w !== value)
+        : [...f.weather, value],
+    }));
+  };
 
   const createMutation = useMutation({
     mutationFn: async () => {
@@ -116,7 +159,7 @@ export function CheckinForm() {
       const payload = {
         ...rest,
         userId: "user1",
-        photos: existingCheckin?.photos || [],
+        photos: (existingCheckin as any)?.photos || [],
       };
       return apiRequest("PATCH", `/api/checkins/${editId}`, payload).then(r => r.json());
     },
@@ -247,7 +290,7 @@ export function CheckinForm() {
           </CardContent>
         </Card>
 
-        {/* Date */}
+        {/* Date Range */}
         <Card className="bg-card border-card-border">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm text-primary flex items-center gap-1.5">
@@ -255,13 +298,42 @@ export function CheckinForm() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Input
-              type="date"
-              value={form.date}
-              onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
-              className="bg-background border-border"
-              data-testid="input-date"
-            />
+            <div className="flex items-center gap-2">
+              <div className="flex-1">
+                <label className="text-xs text-muted-foreground mb-1 block">出发日期</label>
+                <Input
+                  type="date"
+                  value={form.startDate}
+                  onChange={e => {
+                    const newStart = e.target.value;
+                    setForm(f => ({
+                      ...f,
+                      startDate: newStart,
+                      endDate: f.endDate < newStart ? newStart : f.endDate,
+                    }));
+                  }}
+                  className="bg-background border-border"
+                  data-testid="input-start-date"
+                />
+              </div>
+              <span className="text-muted-foreground mt-5">→</span>
+              <div className="flex-1">
+                <label className="text-xs text-muted-foreground mb-1 block">返回日期</label>
+                <Input
+                  type="date"
+                  value={form.endDate}
+                  min={form.startDate}
+                  onChange={e => setForm(f => ({ ...f, endDate: e.target.value }))}
+                  className="bg-background border-border"
+                  data-testid="input-end-date"
+                />
+              </div>
+            </div>
+            <div className="mt-2 text-center">
+              <span className="text-xs text-primary font-medium">
+                共 {tripDays} 天
+              </span>
+            </div>
           </CardContent>
         </Card>
 
@@ -284,6 +356,63 @@ export function CheckinForm() {
                   </button>
                 ))}
               </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Weather (icon multi-select, only for completed) */}
+        {form.status === "completed" && (
+          <Card className="bg-card border-card-border">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm text-primary">天气 (可多选)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-3 gap-2">
+                {WEATHER_OPTIONS.map(opt => {
+                  const selected = form.weather.includes(opt.value);
+                  return (
+                    <button
+                      key={opt.value}
+                      onClick={() => toggleWeather(opt.value)}
+                      className={`flex items-center gap-1.5 py-2 px-3 rounded-lg text-sm transition-all border ${
+                        selected
+                          ? "bg-primary/10 border-primary/30 text-foreground"
+                          : "bg-card border-border text-muted-foreground hover:border-border/80"
+                      }`}
+                      data-testid={`weather-${opt.value}`}
+                    >
+                      <span className="text-base">{opt.icon}</span>
+                      <span>{opt.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Steps */}
+        {form.status === "completed" && (
+          <Card className="bg-card border-card-border">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm text-primary flex items-center gap-1.5">
+                <Footprints className="w-4 h-4" />步数
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Input
+                type="number"
+                placeholder="如：28000"
+                value={form.steps || ""}
+                onChange={e => setForm(f => ({ ...f, steps: parseInt(e.target.value) || 0 }))}
+                className="bg-background border-border"
+                data-testid="input-steps"
+              />
+              {form.steps > 0 && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  约 {(form.steps * 0.7 / 1000).toFixed(1)} 公里
+                </p>
+              )}
             </CardContent>
           </Card>
         )}
@@ -346,26 +475,6 @@ export function CheckinForm() {
             )}
           </CardContent>
         </Card>
-
-        {/* Weather */}
-        {form.status === "completed" && (
-          <Card className="bg-card border-card-border">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-primary flex items-center gap-1.5">
-                <CloudSun className="w-4 h-4" />天气
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Input
-                placeholder="如：晴朗、多云、小雨..."
-                value={form.weather}
-                onChange={e => setForm(f => ({ ...f, weather: e.target.value }))}
-                className="bg-background border-border"
-                data-testid="input-weather"
-              />
-            </CardContent>
-          </Card>
-        )}
 
         {/* Expenses (only for completed) */}
         {form.status === "completed" && (
