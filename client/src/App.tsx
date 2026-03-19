@@ -7,8 +7,9 @@ import { MountainList } from "./pages/MountainList";
 import { MountainDetail } from "./pages/MountainDetail";
 import { Dashboard } from "./pages/Dashboard";
 import { CheckinForm } from "./pages/CheckinForm";
+import { AdminAdd } from "./pages/AdminAdd";
 import { PerplexityAttribution } from "./components/PerplexityAttribution";
-import { Mountain, Map, BarChart3, PlusCircle } from "lucide-react";
+import { Mountain, BarChart3, PlusCircle, Settings } from "lucide-react";
 
 function AppContent() {
   const [location] = useLocation();
@@ -28,6 +29,7 @@ function AppContent() {
             <NavLink href="/" active={location === "/"} icon={<Mountain className="w-4 h-4" />} label="名山" />
             <NavLink href="/dashboard" active={location === "/dashboard"} icon={<BarChart3 className="w-4 h-4" />} label="看板" />
             <NavLink href="/checkin/new" active={location.startsWith("/checkin")} icon={<PlusCircle className="w-4 h-4" />} label="打卡" />
+            <NavLink href="/admin/add" active={location.startsWith("/admin")} icon={<Settings className="w-4 h-4" />} label="管理" />
           </nav>
         </div>
       </header>
@@ -40,6 +42,7 @@ function AppContent() {
           <Route path="/dashboard" component={Dashboard} />
           <Route path="/checkin/new" component={CheckinForm} />
           <Route path="/checkin/new/:mountainId" component={CheckinForm} />
+          <Route path="/admin/add" component={AdminAdd} />
           <Route>
             <div className="flex items-center justify-center h-[60vh] text-muted-foreground">
               <p>页面不存在</p>
@@ -54,6 +57,7 @@ function AppContent() {
           <MobileNavLink href="/" active={location === "/"} icon={<Mountain className="w-5 h-5" />} label="名山" />
           <MobileNavLink href="/dashboard" active={location === "/dashboard"} icon={<BarChart3 className="w-5 h-5" />} label="看板" />
           <MobileNavLink href="/checkin/new" active={location.startsWith("/checkin")} icon={<PlusCircle className="w-5 h-5" />} label="打卡" />
+          <MobileNavLink href="/admin/add" active={location.startsWith("/admin")} icon={<Settings className="w-5 h-5" />} label="管理" />
         </div>
       </nav>
 

@@ -1,13 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { useState } from "react";
-import { Search, MapPin, TrendingUp, Ticket, ChevronRight, Filter } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Search, MapPin, TrendingUp, Ticket, ChevronRight, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import type { Mountain } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 
-const CATEGORIES = ["全部", "五岳", "佛教名山", "道教名山", "徒步", "地貌/网红"];
+const BASE_CATEGORIES = ["五岳", "佛教名山", "道教名山", "徒步", "地貌/网红", "其他山头"];
 
 const DIFFICULTY_COLORS: Record<string, string> = {
   "简单": "bg-green-900/40 text-green-400 border-green-800/50",
@@ -22,6 +22,7 @@ const CATEGORY_EMOJI: Record<string, string> = {
   "道教名山": "☯️",
   "徒步": "🥾",
   "地貌/网红": "📸",
+  "其他山头": "🏔️",
 };
 
 export function MountainList() {
@@ -33,6 +34,15 @@ export function MountainList() {
     queryFn: () => apiRequest("GET", "/api/mountains").then(r => r.json()),
   });
 
+  // Build dynamic category list from actual data
+  const categories = useMemo(() => {
+    const existing = new Set(mountains.map(m => m.category));
+    const ordered = BASE_CATEGORIES.filter(c => existing.has(c));
+    // Add any categories not in base list
+    existing.forEach(c => { if (!BASE_CATEGORIES.includes(c)) ordered.push(c); });
+    return ["全部", ...ordered];
+  }, [mountains]);
+
   const filtered = mountains.filter(m => {
     const matchSearch = search === "" ||
       m.name.includes(search) ||
@@ -42,8 +52,9 @@ export function MountainList() {
   });
 
   // Group by category for display
+  const catOrder = categories.slice(1); // without "全部"
   const grouped = activeCategory === "全部"
-    ? CATEGORIES.slice(1).map(cat => ({
+    ? catOrder.map(cat => ({
         category: cat,
         mountains: filtered.filter(m => m.category === cat),
       })).filter(g => g.mountains.length > 0)
@@ -52,11 +63,19 @@ export function MountainList() {
   return (
     <div className="max-w-7xl mx-auto px-4 pb-20 sm:pb-8">
       {/* Hero Section */}
-      <div className="py-8 sm:py-12">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gold-gradient mb-2">中国名山</h1>
-        <p className="text-muted-foreground text-sm">
-          {mountains.length} 座名山等你征服 · 五岳 · 佛教名山 · 道教名山 · 徒步 · 网红地貌
-        </p>
+      <div className="py-8 sm:py-12 flex items-end justify-between">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gold-gradient mb-2">中国名山</h1>
+          <p className="text-muted-foreground text-sm">
+            {mountains.length} 座名山等你征服
+          </p>
+        </div>
+        <Link href="/admin/add">
+          <button className="shrink-0 flex items-center gap-1.5 px-4 py-2 bg-primary/10 text-primary border border-primary/30 rounded-lg text-sm hover:bg-primary/20 transition-colors">
+            <Plus className="w-4 h-4" />
+            添加
+          </button>
+        </Link>
       </div>
 
       {/* Search & Filter */}
@@ -72,7 +91,7 @@ export function MountainList() {
           />
         </div>
         <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-          {CATEGORIES.map(cat => (
+          {categories.map(cat => (
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
@@ -83,7 +102,7 @@ export function MountainList() {
               }`}
               data-testid={`filter-${cat}`}
             >
-              {cat !== "全部" && <span className="mr-1">{CATEGORY_EMOJI[cat]}</span>}
+              {cat !== "全部" && CATEGORY_EMOJI[cat] && <span className="mr-1">{CATEGORY_EMOJI[cat]}</span>}
               {cat}
             </button>
           ))}
@@ -108,7 +127,7 @@ export function MountainList() {
             <section key={group.category}>
               {activeCategory === "全部" && (
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="text-lg">{CATEGORY_EMOJI[group.category]}</span>
+                  <span className="text-lg">{CATEGORY_EMOJI[group.category] || "🏔️"}</span>
                   <h2 className="text-lg font-semibold text-foreground">{group.category}</h2>
                   <span className="text-sm text-muted-foreground">({group.mountains.length})</span>
                 </div>
@@ -130,50 +149,58 @@ function MountainCard({ mountain }: { mountain: Mountain }) {
   return (
     <Link href={`/mountain/${mountain.id}`}>
       <div
-        className="group bg-card border border-card-border rounded-xl p-4 cursor-pointer transition-all hover:border-primary/30 hover:bg-card/80"
+        className="group bg-card border border-card-border rounded-xl overflow-hidden cursor-pointer transition-all hover:border-primary/30 hover:bg-card/80"
         data-testid={`card-mountain-${mountain.id}`}
       >
-        <div className="flex items-start justify-between mb-3">
-          <div>
-            <h3 className="text-base font-semibold text-foreground group-hover:text-primary transition-colors">
-              {mountain.name}
-            </h3>
-            <div className="flex items-center gap-1 mt-0.5 text-xs text-muted-foreground">
-              <MapPin className="w-3 h-3" />
-              {mountain.province}
-            </div>
-          </div>
-          <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors mt-1" />
-        </div>
-
-        <div className="flex items-center gap-2 mb-3 flex-wrap">
-          <Badge variant="outline" className={DIFFICULTY_COLORS[mountain.difficulty] || ""}>
-            {mountain.difficulty}
-          </Badge>
-          <span className="text-xs text-muted-foreground flex items-center gap-1">
-            <TrendingUp className="w-3 h-3" />
-            {mountain.elevation}m
-          </span>
-          {mountain.ticketPrice !== null && (
-            <span className="text-xs text-muted-foreground flex items-center gap-1">
-              <Ticket className="w-3 h-3" />
-              ¥{mountain.ticketPrice}
-            </span>
-          )}
-        </div>
-
-        {mountain.highlights && mountain.highlights.length > 0 && (
-          <div className="flex gap-1.5 flex-wrap">
-            {mountain.highlights.slice(0, 3).map((h: string) => (
-              <span key={h} className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary/80">
-                {h}
-              </span>
-            ))}
-            {mountain.highlights.length > 3 && (
-              <span className="text-[10px] text-muted-foreground">+{mountain.highlights.length - 3}</span>
-            )}
+        {/* Cover image */}
+        {mountain.imageUrl && (
+          <div className="h-32 w-full overflow-hidden">
+            <img src={mountain.imageUrl} alt={mountain.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
           </div>
         )}
+        <div className="p-4">
+          <div className="flex items-start justify-between mb-3">
+            <div>
+              <h3 className="text-base font-semibold text-foreground group-hover:text-primary transition-colors">
+                {mountain.name}
+              </h3>
+              <div className="flex items-center gap-1 mt-0.5 text-xs text-muted-foreground">
+                <MapPin className="w-3 h-3" />
+                {mountain.province}
+              </div>
+            </div>
+            <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors mt-1" />
+          </div>
+
+          <div className="flex items-center gap-2 mb-3 flex-wrap">
+            <Badge variant="outline" className={DIFFICULTY_COLORS[mountain.difficulty] || ""}>
+              {mountain.difficulty}
+            </Badge>
+            <span className="text-xs text-muted-foreground flex items-center gap-1">
+              <TrendingUp className="w-3 h-3" />
+              {mountain.elevation}m
+            </span>
+            {mountain.ticketPrice !== null && (
+              <span className="text-xs text-muted-foreground flex items-center gap-1">
+                <Ticket className="w-3 h-3" />
+                ¥{mountain.ticketPrice}
+              </span>
+            )}
+          </div>
+
+          {mountain.highlights && mountain.highlights.length > 0 && (
+            <div className="flex gap-1.5 flex-wrap">
+              {mountain.highlights.slice(0, 3).map((h: string) => (
+                <span key={h} className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary/80">
+                  {h}
+                </span>
+              ))}
+              {mountain.highlights.length > 3 && (
+                <span className="text-[10px] text-muted-foreground">+{mountain.highlights.length - 3}</span>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </Link>
   );

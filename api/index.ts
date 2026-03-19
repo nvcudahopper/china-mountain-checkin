@@ -189,11 +189,50 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
       return res.json(result);
     }
 
+    // POST /api/mountains (create new mountain)
+    if (segments[0] === "mountains" && !segments[1] && method === "POST") {
+      const body = req.body;
+      const maxId = storage.mountains.reduce((max, m) => Math.max(max, m.id), 0);
+      const newMountain: Mountain = {
+        id: maxId + 1,
+        name: body.name || "",
+        province: body.province || "",
+        elevation: body.elevation || 0,
+        category: body.category || "其他山头",
+        ticketPrice: body.ticketPrice ?? null,
+        difficulty: body.difficulty || "中等",
+        duration: body.duration || "1日",
+        description: body.description || null,
+        highlights: body.highlights || null,
+        culturalBackground: body.culturalBackground || null,
+        bestMonths: body.bestMonths || null,
+        seasonNotes: body.seasonNotes || null,
+        routes: body.routes || null,
+        tips: body.tips || null,
+        foods: body.foods || null,
+        transport: body.transport || null,
+        photoSpots: body.photoSpots || null,
+        latitude: body.latitude || null,
+        longitude: body.longitude || null,
+        imageUrl: body.imageUrl || null,
+        photos: null,
+      };
+      storage.mountains.push(newMountain);
+      return res.status(201).json(newMountain);
+    }
+
     // GET /api/mountains/:id
     if (segments[0] === "mountains" && segments[1] && method === "GET") {
       const mountain = storage.mountains.find((m) => m.id === parseInt(segments[1]));
       if (!mountain) return res.status(404).json({ error: "Mountain not found" });
       return res.json(mountain);
+    }
+
+    // GET /api/categories (dynamic)
+    if (segments[0] === "categories" && method === "GET") {
+      const cats = new Set(storage.mountains.map((m) => m.category));
+      ["五岳", "佛教名山", "道教名山", "徒步", "地貌/网红", "其他山头"].forEach((c) => cats.add(c));
+      return res.json(Array.from(cats));
     }
 
     // GET /api/checkins
@@ -282,8 +321,8 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
       const completedMountainIds = new Set(completed.map((l) => l.mountainId));
       const completedMountains = mountains.filter((m) => completedMountainIds.has(m.id));
 
-      const categories = ["五岳", "佛教名山", "道教名山", "徒步", "地貌/网红"];
-      const categoryStats = categories.map((cat) => {
+      const allCats = new Set(mountains.map((m) => m.category));
+      const categoryStats = Array.from(allCats).map((cat) => {
         const total = mountains.filter((m) => m.category === cat).length;
         const done = completedMountains.filter((m) => m.category === cat).length;
         return { category: cat, total, done };

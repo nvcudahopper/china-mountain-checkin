@@ -7,6 +7,7 @@ export interface IStorage {
   getMountain(id: number): Promise<Mountain | undefined>;
   getMountainsByCategory(category: string): Promise<Mountain[]>;
   searchMountains(query: string): Promise<Mountain[]>;
+  createMountain(data: Partial<InsertMountain>): Promise<Mountain>;
 
   // Check-in logs
   getCheckinLogs(userId?: string): Promise<CheckinLog[]>;
@@ -124,6 +125,35 @@ export class MemStorage implements IStorage {
       m.province.toLowerCase().includes(q) ||
       m.category.toLowerCase().includes(q)
     );
+  }
+
+  async createMountain(data: Partial<InsertMountain>): Promise<Mountain> {
+    const maxId = this.mountains.reduce((max, m) => Math.max(max, m.id), 0);
+    const newMountain: Mountain = {
+      id: maxId + 1,
+      name: data.name || "",
+      province: data.province || "",
+      elevation: data.elevation || 0,
+      category: data.category || "其他山头",
+      ticketPrice: data.ticketPrice ?? null,
+      difficulty: data.difficulty || "中等",
+      duration: data.duration || "1日",
+      description: data.description || null,
+      highlights: data.highlights || null,
+      culturalBackground: data.culturalBackground || null,
+      bestMonths: data.bestMonths || null,
+      seasonNotes: data.seasonNotes || null,
+      routes: data.routes || null,
+      tips: data.tips || null,
+      foods: data.foods || null,
+      transport: data.transport || null,
+      photoSpots: data.photoSpots || null,
+      latitude: data.latitude || null,
+      longitude: data.longitude || null,
+      imageUrl: data.imageUrl || null,
+    } as Mountain;
+    this.mountains.push(newMountain);
+    return newMountain;
   }
 
   async getCheckinLogs(userId?: string): Promise<CheckinLog[]> {

@@ -23,6 +23,25 @@ export async function registerRoutes(server: Server, app: Express) {
     res.json(mountain);
   });
 
+  // Create a new mountain
+  app.post("/api/mountains", async (req, res) => {
+    try {
+      const mountain = await storage.createMountain(req.body);
+      res.status(201).json(mountain);
+    } catch (e: any) {
+      res.status(400).json({ error: e.message });
+    }
+  });
+
+  // Get all categories (dynamic)
+  app.get("/api/categories", async (_req, res) => {
+    const mountains = await storage.getMountains();
+    const cats = new Set(mountains.map(m => m.category));
+    // Always include these base categories
+    ["五岳", "佛教名山", "道教名山", "徒步", "地貌/网红", "其他山头"].forEach(c => cats.add(c));
+    res.json(Array.from(cats));
+  });
+
   // Check-in logs
   app.get("/api/checkins", async (req, res) => {
     const { userId, mountainId } = req.query;
@@ -103,18 +122,15 @@ export async function registerRoutes(server: Server, app: Express) {
     const completedMountainIds = new Set(completed.map(l => l.mountainId));
     const completedMountains = mountains.filter(m => completedMountainIds.has(m.id));
 
-    // Category completion
-    const categories = ["五岳", "佛教名山", "道教名山", "徒步", "地貌/网红"];
-    const categoryStats = categories.map(cat => {
+    // Dynamic categories from actual mountain data
+    const allCats = new Set(mountains.map(m => m.category));
+    const categoryStats = Array.from(allCats).map(cat => {
       const total = mountains.filter(m => m.category === cat).length;
       const done = completedMountains.filter(m => m.category === cat).length;
       return { category: cat, total, done };
     });
 
-    // Total elevation
     const totalElevation = completedMountains.reduce((sum, m) => sum + m.elevation, 0);
-
-    // Total expenses
     const totalExpenses = completed.reduce((sum, l) => {
       if (l.expenses && typeof l.expenses === "object") {
         const exp = l.expenses as Record<string, number>;
@@ -123,10 +139,9 @@ export async function registerRoutes(server: Server, app: Express) {
       return sum;
     }, 0);
 
-    // Monthly heatmap (for contribution graph)
     const monthlyActivity: Record<string, number> = {};
     completed.forEach(l => {
-      const month = l.date.substring(0, 7); // YYYY-MM
+      const month = l.date.substring(0, 7);
       monthlyActivity[month] = (monthlyActivity[month] || 0) + 1;
     });
 
