@@ -1,155 +1,32 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { put, list } from "@vercel/blob";
+import { neon } from "@neondatabase/serverless";
 
-// ============= Inline types =============
-interface Mountain {
-  id: number;
-  name: string;
-  province: string;
-  elevation: number;
-  category: string;
-  ticketPrice: number | null;
-  difficulty: string;
-  duration: string;
-  description: string | null;
-  highlights: string[] | null;
-  culturalBackground: string | null;
-  bestMonths: unknown;
-  seasonNotes: string | null;
-  routes: unknown;
-  tips: unknown;
-  foods: unknown;
-  transport: unknown;
-  photoSpots: string[] | null;
-  latitude: string | null;
-  longitude: string | null;
-  imageUrl: string | null;
-  photos?: unknown;
+// ============= Database =============
+function getSQL() {
+  const url = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+  if (!url) throw new Error("DATABASE_URL not configured");
+  return neon(url);
 }
 
-interface CheckinLog {
-  id: number;
-  mountainId: number;
-  userId: string;
-  status: string;
-  companions: string[] | null;
-  weather: string | string[] | null;
-  notes: string | null;
-  rating: number | null;
-  routeName: string | null;
-  expenses: unknown;
-  photos: string[] | null;
-  createdAt: string | null;
-  startDate?: string;
-  endDate?: string;
-  steps?: unknown;
-  [key: string]: unknown;
-}
-
-interface Comment {
-  id: number;
-  checkinId: number;
-  userId: string;
-  userName: string;
-  content: string;
-  createdAt: string | null;
-}
-
-interface User {
-  id: number;
-  userId: string;
-  name: string;
-  avatar: string | null;
-}
-
-interface StoredData {
-  checkins: CheckinLog[];
-  comments: Comment[];
-  users: User[];
-  nextCheckinId: number;
-  nextCommentId: number;
-  nextUserId: number;
-}
-
-// ============= Mountain data (static) =============
+// ============= Mountain data (static from data.js) =============
 // @ts-ignore
 import { mountainData } from "./data.js";
 
+interface Mountain {
+  id: number; name: string; province: string; elevation: number;
+  category: string; ticketPrice: number | null; difficulty: string;
+  duration: string; description: string | null; highlights: string[] | null;
+  culturalBackground: string | null; bestMonths: unknown; seasonNotes: string | null;
+  routes: unknown; tips: unknown; foods: unknown; transport: unknown;
+  photoSpots: string[] | null; latitude: string | null; longitude: string | null;
+  imageUrl: string | null; photos?: unknown;
+}
+
 const mountains: Mountain[] = (mountainData as any[]).map((m, i) => ({
-  ...m,
-  id: i + 1,
+  ...m, id: i + 1,
   highlights: m.highlights || null,
   photoSpots: m.photoSpots || null,
 }));
-
-// ============= Blob-based persistent storage =============
-const BLOB_KEY = "mountain-tracker-data.json";
-const HAS_BLOB = !!process.env.BLOB_READ_WRITE_TOKEN;
-
-// In-memory cache to reduce blob reads within same function invocation
-let cachedData: StoredData | null = null;
-
-function defaultData(): StoredData {
-  return {
-    checkins: [],
-    comments: [],
-    users: [
-      { id: 1, userId: "user1", name: "山行者", avatar: "🏔️" },
-      { id: 2, userId: "user2", name: "云端客", avatar: "⛅" },
-      { id: 3, userId: "user3", name: "徒步达人", avatar: "🥾" },
-    ],
-    nextCheckinId: 1,
-    nextCommentId: 1,
-    nextUserId: 4,
-  };
-}
-
-async function loadData(): Promise<StoredData> {
-  if (cachedData) return cachedData;
-
-  if (!HAS_BLOB) {
-    // Fallback: in-memory only (dev / no blob token)
-    cachedData = defaultData();
-    return cachedData;
-  }
-
-  try {
-    // Find the blob URL by listing with prefix
-    const { blobs } = await list({ prefix: BLOB_KEY, limit: 1 });
-    if (blobs.length > 0) {
-      // Fetch the JSON content via the blob's public URL
-      const response = await fetch(blobs[0].url);
-      if (response.ok) {
-        const text = await response.text();
-        if (text) {
-          cachedData = JSON.parse(text);
-          return cachedData!;
-        }
-      }
-    }
-  } catch (e: any) {
-    // Blob not found or parse error — start fresh
-    console.log("Blob load fallback:", e.message);
-  }
-
-  cachedData = defaultData();
-  return cachedData;
-}
-
-async function saveData(data: StoredData): Promise<void> {
-  cachedData = data;
-  if (!HAS_BLOB) return;
-
-  try {
-    await put(BLOB_KEY, JSON.stringify(data), {
-      access: "public",
-      contentType: "application/json",
-      addRandomSuffix: false,
-    });
-  } catch (e: any) {
-    console.error("Blob save error:", e.message);
-  }
-}
 
 // ============= URL parsing =============
 function parsePath(url: string): { segments: string[]; query: Record<string, string> } {
@@ -176,50 +53,39 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const method = req.method || "GET";
 
   try {
+    // ===== Mountains (static data, no DB needed) =====
+
     // GET /api/mountains
     if (segments[0] === "mountains" && !segments[1] && method === "GET") {
       let result = mountains;
       if (query.search) {
         const q = query.search.toLowerCase();
-        result = result.filter(
-          (m) =>
-            m.name.toLowerCase().includes(q) ||
-            m.province.toLowerCase().includes(q) ||
-            m.category.toLowerCase().includes(q)
+        result = result.filter(m =>
+          m.name.toLowerCase().includes(q) ||
+          m.province.toLowerCase().includes(q) ||
+          m.category.toLowerCase().includes(q)
         );
       } else if (query.category) {
-        result = result.filter((m) => m.category === query.category);
+        result = result.filter(m => m.category === query.category);
       }
       return res.json(result);
     }
 
-    // POST /api/mountains (create new mountain)
+    // POST /api/mountains
     if (segments[0] === "mountains" && !segments[1] && method === "POST") {
       const body = req.body;
       const maxId = mountains.reduce((max, m) => Math.max(max, m.id), 0);
       const newMountain: Mountain = {
-        id: maxId + 1,
-        name: body.name || "",
-        province: body.province || "",
-        elevation: body.elevation || 0,
-        category: body.category || "其他山头",
-        ticketPrice: body.ticketPrice ?? null,
-        difficulty: body.difficulty || "中等",
-        duration: body.duration || "1日",
-        description: body.description || null,
-        highlights: body.highlights || null,
-        culturalBackground: body.culturalBackground || null,
-        bestMonths: body.bestMonths || null,
-        seasonNotes: body.seasonNotes || null,
-        routes: body.routes || null,
-        tips: body.tips || null,
-        foods: body.foods || null,
-        transport: body.transport || null,
-        photoSpots: body.photoSpots || null,
-        latitude: body.latitude || null,
-        longitude: body.longitude || null,
-        imageUrl: body.imageUrl || null,
-        photos: null,
+        id: maxId + 1, name: body.name || "", province: body.province || "",
+        elevation: body.elevation || 0, category: body.category || "其他山头",
+        ticketPrice: body.ticketPrice ?? null, difficulty: body.difficulty || "中等",
+        duration: body.duration || "1日", description: body.description || null,
+        highlights: body.highlights || null, culturalBackground: body.culturalBackground || null,
+        bestMonths: body.bestMonths || null, seasonNotes: body.seasonNotes || null,
+        routes: body.routes || null, tips: body.tips || null,
+        foods: body.foods || null, transport: body.transport || null,
+        photoSpots: body.photoSpots || null, latitude: body.latitude || null,
+        longitude: body.longitude || null, imageUrl: body.imageUrl || null, photos: null,
       };
       mountains.push(newMountain);
       return res.status(201).json(newMountain);
@@ -227,144 +93,174 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // GET /api/mountains/:id
     if (segments[0] === "mountains" && segments[1] && method === "GET") {
-      const mountain = mountains.find((m) => m.id === parseInt(segments[1]));
+      const mountain = mountains.find(m => m.id === parseInt(segments[1]));
       if (!mountain) return res.status(404).json({ error: "Mountain not found" });
       return res.json(mountain);
     }
 
-    // GET /api/categories (dynamic)
+    // GET /api/categories
     if (segments[0] === "categories" && method === "GET") {
-      const cats = new Set(mountains.map((m) => m.category));
-      ["五岳", "佛教名山", "道教名山", "徒步", "地貌/网红", "其他山头"].forEach((c) => cats.add(c));
+      const cats = new Set(mountains.map(m => m.category));
+      ["五岳", "佛教名山", "道教名山", "徒步", "地貌/网红", "其他山头"].forEach(c => cats.add(c));
       return res.json(Array.from(cats));
     }
 
-    // ===== Checkins (persistent via Blob) =====
-    const data = await loadData();
+    // ===== Checkins (Neon Postgres) =====
+    const sql = getSQL();
 
     // GET /api/checkins
     if (segments[0] === "checkins" && !segments[1] && method === "GET") {
-      let logs = data.checkins;
+      let rows;
       if (query.mountainId) {
-        logs = logs.filter((l) => l.mountainId === parseInt(query.mountainId));
+        rows = await sql`SELECT * FROM mt_checkins WHERE mountain_id = ${parseInt(query.mountainId)} ORDER BY id DESC`;
       } else if (query.userId) {
-        logs = logs.filter((l) => l.userId === query.userId);
+        rows = await sql`SELECT * FROM mt_checkins WHERE user_id = ${query.userId} ORDER BY id DESC`;
+      } else {
+        rows = await sql`SELECT * FROM mt_checkins ORDER BY id DESC`;
       }
-      return res.json(logs);
+      // Map DB columns to frontend camelCase
+      return res.json(rows.map(mapCheckinRow));
     }
 
     // GET /api/checkins/:id
     if (segments[0] === "checkins" && segments[1] && method === "GET") {
-      const log = data.checkins.find((l) => l.id === parseInt(segments[1]));
-      if (!log) return res.status(404).json({ error: "Check-in log not found" });
-      return res.json(log);
+      const rows = await sql`SELECT * FROM mt_checkins WHERE id = ${parseInt(segments[1])}`;
+      if (rows.length === 0) return res.status(404).json({ error: "Check-in log not found" });
+      return res.json(mapCheckinRow(rows[0]));
     }
 
     // POST /api/checkins
     if (segments[0] === "checkins" && method === "POST") {
-      const id = data.nextCheckinId++;
-      const newLog: CheckinLog = { ...req.body, id, createdAt: req.body.createdAt || new Date().toISOString() };
-      data.checkins.push(newLog);
-      await saveData(data);
-      return res.status(201).json(newLog);
+      const b = req.body;
+      const rows = await sql`
+        INSERT INTO mt_checkins (mountain_id, user_id, status, start_date, end_date, weather, notes, rating, route_name, expenses, companions, photos, steps, created_at)
+        VALUES (
+          ${b.mountainId}, ${b.userId || "user1"}, ${b.status || "completed"},
+          ${b.startDate || b.date || null}, ${b.endDate || b.startDate || b.date || null},
+          ${JSON.stringify(b.weather) || null}, ${b.notes || null}, ${b.rating || null},
+          ${b.routeName || null}, ${b.expenses ? JSON.stringify(b.expenses) : null},
+          ${b.companions ? JSON.stringify(b.companions) : null},
+          ${b.photos ? JSON.stringify(b.photos) : null},
+          ${b.steps ? JSON.stringify(b.steps) : null},
+          ${new Date().toISOString()}
+        )
+        RETURNING *
+      `;
+      return res.status(201).json(mapCheckinRow(rows[0]));
     }
 
     // PATCH /api/checkins/:id
     if (segments[0] === "checkins" && segments[1] && method === "PATCH") {
       const id = parseInt(segments[1]);
-      const idx = data.checkins.findIndex((l) => l.id === id);
-      if (idx === -1) return res.status(404).json({ error: "Check-in log not found" });
-      data.checkins[idx] = { ...data.checkins[idx], ...req.body };
-      await saveData(data);
-      return res.json(data.checkins[idx]);
+      const b = req.body;
+      // Build SET clause dynamically
+      const updates: string[] = [];
+      const vals: any = { id };
+      if (b.mountainId !== undefined) { vals.mountainId = b.mountainId; }
+      if (b.status !== undefined) { vals.status = b.status; }
+      if (b.startDate !== undefined || b.date !== undefined) { vals.startDate = b.startDate || b.date; }
+      if (b.endDate !== undefined) { vals.endDate = b.endDate; }
+      if (b.weather !== undefined) { vals.weather = JSON.stringify(b.weather); }
+      if (b.notes !== undefined) { vals.notes = b.notes; }
+      if (b.rating !== undefined) { vals.rating = b.rating; }
+      if (b.routeName !== undefined) { vals.routeName = b.routeName; }
+      if (b.expenses !== undefined) { vals.expenses = JSON.stringify(b.expenses); }
+      if (b.companions !== undefined) { vals.companions = JSON.stringify(b.companions); }
+      if (b.photos !== undefined) { vals.photos = JSON.stringify(b.photos); }
+      if (b.steps !== undefined) { vals.steps = JSON.stringify(b.steps); }
+
+      // Use a full UPDATE with all fields (simpler than dynamic SQL with neon tagged template)
+      const rows = await sql`
+        UPDATE mt_checkins SET
+          mountain_id = COALESCE(${vals.mountainId ?? null}, mountain_id),
+          status = COALESCE(${vals.status ?? null}, status),
+          start_date = COALESCE(${vals.startDate ?? null}, start_date),
+          end_date = COALESCE(${vals.endDate ?? null}, end_date),
+          weather = COALESCE(${vals.weather ?? null}, weather),
+          notes = COALESCE(${vals.notes ?? null}, notes),
+          rating = COALESCE(${vals.rating ?? null}, rating),
+          route_name = COALESCE(${vals.routeName ?? null}, route_name),
+          expenses = COALESCE(${vals.expenses ?? null}, expenses),
+          companions = COALESCE(${vals.companions ?? null}, companions),
+          photos = COALESCE(${vals.photos ?? null}, photos),
+          steps = COALESCE(${vals.steps ?? null}, steps)
+        WHERE id = ${id}
+        RETURNING *
+      `;
+      if (rows.length === 0) return res.status(404).json({ error: "Check-in log not found" });
+      return res.json(mapCheckinRow(rows[0]));
     }
 
     // DELETE /api/checkins/:id
     if (segments[0] === "checkins" && segments[1] && method === "DELETE") {
       const id = parseInt(segments[1]);
-      const idx = data.checkins.findIndex((l) => l.id === id);
-      if (idx === -1) return res.status(404).json({ error: "Check-in log not found" });
-      data.checkins.splice(idx, 1);
-      await saveData(data);
+      const rows = await sql`DELETE FROM mt_checkins WHERE id = ${id} RETURNING id`;
+      if (rows.length === 0) return res.status(404).json({ error: "Check-in log not found" });
       return res.json({ success: true });
     }
 
-    // GET /api/comments
-    if (segments[0] === "comments" && method === "GET") {
-      if (!query.checkinId) return res.status(400).json({ error: "checkinId required" });
-      const comments = data.comments.filter((c) => c.checkinId === parseInt(query.checkinId));
-      return res.json(comments);
-    }
-
-    // POST /api/comments
-    if (segments[0] === "comments" && method === "POST") {
-      const id = data.nextCommentId++;
-      const newComment: Comment = { ...req.body, id, createdAt: req.body.createdAt || new Date().toISOString() };
-      data.comments.push(newComment);
-      await saveData(data);
-      return res.status(201).json(newComment);
-    }
-
+    // ===== Users =====
     // GET /api/users
     if (segments[0] === "users" && !segments[1] && method === "GET") {
-      return res.json(data.users);
+      const rows = await sql`SELECT * FROM mt_users ORDER BY id`;
+      return res.json(rows.map(r => ({ id: r.id, userId: r.user_id, name: r.name, avatar: r.avatar })));
     }
 
     // GET /api/users/:userId
     if (segments[0] === "users" && segments[1] && method === "GET") {
-      const user = data.users.find((u) => u.userId === segments[1]);
-      if (!user) return res.status(404).json({ error: "User not found" });
-      return res.json(user);
+      const rows = await sql`SELECT * FROM mt_users WHERE user_id = ${segments[1]}`;
+      if (rows.length === 0) return res.status(404).json({ error: "User not found" });
+      const r = rows[0];
+      return res.json({ id: r.id, userId: r.user_id, name: r.name, avatar: r.avatar });
     }
 
+    // ===== Stats =====
     // GET /api/stats/:userId
     if (segments[0] === "stats" && segments[1] && method === "GET") {
       const userId = segments[1];
-      const logs = data.checkins.filter((l) => l.userId === userId);
+      const rows = await sql`SELECT * FROM mt_checkins WHERE user_id = ${userId}`;
+      const logs = rows.map(mapCheckinRow);
 
-      const completed = logs.filter((l) => l.status === "completed");
-      const planned = logs.filter((l) => l.status === "planned");
-      const wishlist = logs.filter((l) => l.status === "wishlist");
+      const completed = logs.filter((l: any) => l.status === "completed");
+      const planned = logs.filter((l: any) => l.status === "planned");
+      const wishlist = logs.filter((l: any) => l.status === "wishlist");
 
-      const completedMountainIds = new Set(completed.map((l) => l.mountainId));
-      const completedMountains = mountains.filter((m) => completedMountainIds.has(m.id));
+      const completedMountainIds = new Set(completed.map((l: any) => l.mountainId));
+      const completedMountains = mountains.filter(m => completedMountainIds.has(m.id));
 
-      const allCats = new Set(mountains.map((m) => m.category));
-      const categoryStats = Array.from(allCats).map((cat) => {
-        const total = mountains.filter((m) => m.category === cat).length;
-        const done = completedMountains.filter((m) => m.category === cat).length;
+      const allCats = new Set(mountains.map(m => m.category));
+      const categoryStats = Array.from(allCats).map(cat => {
+        const total = mountains.filter(m => m.category === cat).length;
+        const done = completedMountains.filter(m => m.category === cat).length;
         return { category: cat, total, done };
       });
 
       const totalElevation = completedMountains.reduce((sum, m) => sum + m.elevation, 0);
-      const totalExpenses = completed.reduce((sum, l) => {
+      const totalExpenses = completed.reduce((sum: number, l: any) => {
         if (l.expenses && typeof l.expenses === "object") {
-          const exp = l.expenses as Record<string, number>;
-          return sum + Object.values(exp).reduce((s, v) => s + (v || 0), 0);
+          return sum + Object.values(l.expenses as Record<string, number>).reduce((s, v) => s + (v || 0), 0);
         }
         return sum;
       }, 0);
 
       const monthlyActivity: Record<string, number> = {};
-      completed.forEach((l) => {
+      completed.forEach((l: any) => {
         const dateStr = l.startDate || "";
         const month = dateStr.substring(0, 7);
         if (month) monthlyActivity[month] = (monthlyActivity[month] || 0) + 1;
       });
 
-      // Calculate total days across all completed trips
-      const totalDays = completed.reduce((sum, l) => {
+      const totalDays = completed.reduce((sum: number, l: any) => {
         const sd = l.startDate;
         const ed = l.endDate || sd;
         if (!sd) return sum;
         const start = new Date(sd);
-        const end = new Date(ed!);
+        const end = new Date(ed);
         const diff = Math.max(1, Math.round((end.getTime() - start.getTime()) / 86400000) + 1);
         return sum + diff;
       }, 0);
 
-      // Calculate total steps (supports both old integer and new {date: steps} format)
-      const totalSteps = completed.reduce((sum, l) => {
+      const totalSteps = completed.reduce((sum: number, l: any) => {
         const s = l.steps;
         if (!s) return sum;
         if (typeof s === "number") return sum + s;
@@ -386,8 +282,32 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         totalSteps,
         monthlyActivity,
         completedMountainIds: Array.from(completedMountainIds),
-        plannedMountainIds: planned.map((l) => l.mountainId),
-        wishlistMountainIds: wishlist.map((l) => l.mountainId),
+        plannedMountainIds: planned.map((l: any) => l.mountainId),
+        wishlistMountainIds: wishlist.map((l: any) => l.mountainId),
+      });
+    }
+
+    // ===== Comments =====
+    if (segments[0] === "comments" && method === "GET") {
+      if (!query.checkinId) return res.status(400).json({ error: "checkinId required" });
+      const rows = await sql`SELECT * FROM mt_comments WHERE checkin_id = ${parseInt(query.checkinId)} ORDER BY id`;
+      return res.json(rows.map(r => ({
+        id: r.id, checkinId: r.checkin_id, userId: r.user_id,
+        userName: r.user_name, content: r.content, createdAt: r.created_at,
+      })));
+    }
+
+    if (segments[0] === "comments" && method === "POST") {
+      const b = req.body;
+      const rows = await sql`
+        INSERT INTO mt_comments (checkin_id, user_id, user_name, content, created_at)
+        VALUES (${b.checkinId}, ${b.userId}, ${b.userName}, ${b.content}, ${new Date().toISOString()})
+        RETURNING *
+      `;
+      const r = rows[0];
+      return res.status(201).json({
+        id: r.id, checkinId: r.checkin_id, userId: r.user_id,
+        userName: r.user_name, content: r.content, createdAt: r.created_at,
       });
     }
 
@@ -396,4 +316,34 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     console.error("API Error:", err);
     return res.status(500).json({ error: err.message || "Internal Server Error" });
   }
+}
+
+// ============= Map DB row (snake_case) to frontend (camelCase) =============
+function mapCheckinRow(r: any) {
+  return {
+    id: r.id,
+    mountainId: r.mountain_id,
+    userId: r.user_id,
+    status: r.status,
+    startDate: r.start_date,
+    endDate: r.end_date,
+    weather: parseJSON(r.weather),
+    notes: r.notes,
+    rating: r.rating,
+    routeName: r.route_name,
+    expenses: parseJSON(r.expenses),
+    companions: parseJSON(r.companions),
+    photos: parseJSON(r.photos),
+    steps: parseJSON(r.steps),
+    createdAt: r.created_at,
+  };
+}
+
+function parseJSON(val: any): any {
+  if (val === null || val === undefined) return null;
+  if (typeof val === "object") return val; // already parsed (jsonb)
+  if (typeof val === "string") {
+    try { return JSON.parse(val); } catch { return val; }
+  }
+  return val;
 }
