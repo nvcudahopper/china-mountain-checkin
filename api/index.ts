@@ -59,7 +59,8 @@ interface User {
 }
 
 // ============= Mountain data =============
-import mountainData from "./mountains.json";
+// @ts-ignore
+import { mountainData } from "./data.js";
 
 // ============= In-memory storage =============
 class MemStorage {
