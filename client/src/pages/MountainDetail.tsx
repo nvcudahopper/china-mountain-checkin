@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams, Link } from "wouter";
-import { useMemo } from "react";
-import { ArrowLeft, MapPin, TrendingUp, Ticket, Clock, Star, Calendar, Utensils, Route, AlertTriangle, Bus, Camera, Sun, CloudRain, Snowflake, Leaf, Flower2 } from "lucide-react";
+import { useMemo, useState, useCallback, useEffect, useRef } from "react";
+import { ArrowLeft, MapPin, TrendingUp, Ticket, Clock, Star, Calendar, Utensils, Route, AlertTriangle, Bus, Camera, Sun, CloudRain, Snowflake, Leaf, Flower2, ChevronLeft, ChevronRight as ChevronRightIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -98,6 +98,7 @@ export function MountainDetail() {
   const foods = mountain.foods as Array<{ name: string; place: string; price: string; note: string }> | null;
   const transport = mountain.transport as Record<string, string> | null;
   const imageUrl = (mountain as any).imageUrl as string | null;
+  const photos = (mountain as any).photos as string[] | null;
 
   const defaultTab = tabConfig[0]?.value || "logs";
 
@@ -113,12 +114,14 @@ export function MountainDetail() {
         </Link>
       </div>
 
-      {/* Cover Image */}
-      {imageUrl && (
+      {/* Photo Gallery / Carousel */}
+      {photos && photos.length > 0 ? (
+        <PhotoCarousel photos={photos} name={mountain.name} />
+      ) : imageUrl ? (
         <div className="w-full h-48 sm:h-64 rounded-2xl overflow-hidden mb-4">
           <img src={imageUrl} alt={mountain.name} className="w-full h-full object-cover" />
         </div>
-      )}
+      ) : null}
 
       {/* Hero Info Card */}
       <div className="bg-gradient-to-br from-card via-card to-primary/5 border border-card-border rounded-2xl p-6 mb-6">
@@ -412,6 +415,147 @@ export function MountainDetail() {
             )}
           </TabsContent>
         </Tabs>
+      )}
+    </div>
+  );
+}
+
+function PhotoCarousel({ photos, name }: { photos: string[]; name: string }) {
+  const [current, setCurrent] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [validPhotos, setValidPhotos] = useState<string[]>(photos);
+  const [failedUrls, setFailedUrls] = useState<Set<string>>(new Set());
+  const touchStartX = useRef(0);
+  const touchEndX = useRef(0);
+
+  // Filter out failed URLs
+  useEffect(() => {
+    const filtered = photos.filter(url => !failedUrls.has(url));
+    setValidPhotos(filtered.length > 0 ? filtered : [photos[0]]);
+  }, [photos, failedUrls]);
+
+  const goTo = useCallback((idx: number) => {
+    setIsLoading(true);
+    setCurrent(idx);
+  }, []);
+
+  const prev = useCallback(() => {
+    goTo(current === 0 ? validPhotos.length - 1 : current - 1);
+  }, [current, validPhotos.length, goTo]);
+
+  const next = useCallback(() => {
+    goTo(current === validPhotos.length - 1 ? 0 : current + 1);
+  }, [current, validPhotos.length, goTo]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') prev();
+      if (e.key === 'ArrowRight') next();
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [prev, next]);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    touchEndX.current = e.changedTouches[0].clientX;
+    const diff = touchStartX.current - touchEndX.current;
+    if (Math.abs(diff) > 50) {
+      diff > 0 ? next() : prev();
+    }
+  };
+
+  const handleImageError = useCallback(() => {
+    setIsLoading(false);
+    const failedUrl = validPhotos[current];
+    if (failedUrl) {
+      setFailedUrls(prev => new Set(prev).add(failedUrl));
+      // Move to next valid image
+      if (current >= validPhotos.length - 1) {
+        setCurrent(0);
+      }
+    }
+  }, [current, validPhotos]);
+
+  if (validPhotos.length <= 1) {
+    return (
+      <div className="w-full h-48 sm:h-72 rounded-2xl overflow-hidden mb-4 bg-muted">
+        <img
+          src={validPhotos[0]}
+          alt={name}
+          className="w-full h-full object-cover"
+          loading="eager"
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative w-full mb-4 group" data-testid="photo-carousel">
+      {/* Main image */}
+      <div
+        className="relative w-full h-48 sm:h-72 rounded-2xl overflow-hidden bg-muted"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        {isLoading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-muted animate-pulse">
+            <Camera className="w-8 h-8 text-muted-foreground/40" />
+          </div>
+        )}
+        <img
+          src={validPhotos[current]}
+          alt={`${name} - ${current + 1}`}
+          className={`w-full h-full object-cover transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+          loading="eager"
+          onLoad={() => setIsLoading(false)}
+          onError={handleImageError}
+        />
+
+        {/* Navigation arrows */}
+        <button
+          onClick={prev}
+          className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
+          data-testid="carousel-prev"
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+        <button
+          onClick={next}
+          className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
+          data-testid="carousel-next"
+        >
+          <ChevronRightIcon className="w-4 h-4" />
+        </button>
+
+        {/* Counter badge */}
+        {validPhotos.length > 1 && (
+          <div className="absolute top-3 right-3 px-2 py-0.5 rounded-full bg-black/50 text-white text-xs font-medium">
+            {current + 1} / {validPhotos.length}
+          </div>
+        )}
+      </div>
+
+      {/* Dot indicators */}
+      {validPhotos.length > 1 && (
+        <div className="flex justify-center gap-1.5 mt-2">
+          {validPhotos.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => goTo(i)}
+              className={`w-1.5 h-1.5 rounded-full transition-all ${
+                i === current
+                  ? 'bg-primary w-4'
+                  : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
+              }`}
+              data-testid={`carousel-dot-${i}`}
+            />
+          ))}
+        </div>
       )}
     </div>
   );

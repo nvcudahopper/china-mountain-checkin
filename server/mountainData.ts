@@ -17,7 +17,7 @@ export const mountainData: any[] = [
     foods: [{"name":"华山大刀面","place":"玉泉院附近","price":"15-25元","note":"华山特色面食"},{"name":"华阴老腔火锅","place":"华阴市区","price":"60-100元/人","note":"边看老腔表演边吃火锅"}],
     transport: {"nearestAirport":"西安咸阳国际机场（约120km）","nearestStation":"华山北站（高铁）","fromBeijing":"高铁约5小时","fromShanghai":"高铁约6小时","fromGuangzhou":"高铁约8小时"},
     photoSpots: ["东峰日出观景台","长空栈道", "南峰绝顶","鹞子翻身"],
-    latitude: "34.4870", longitude: "110.0849", imageUrl: "/mountains/huashan.jpg"
+    latitude: "34.4870", longitude: "110.0849", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/d/d9/1_mount_hua_shan_china_2011.jpg", photos: ["https://upload.wikimedia.org/wikipedia/commons/d/d9/1_mount_hua_shan_china_2011.jpg", "https://upload.wikimedia.org/wikipedia/commons/1/18/Hua_Shan.jpg", "https://upload.wikimedia.org/wikipedia/commons/3/36/Mount_Hua_-_panoramio.jpg"]
   },
   {
     name: "衡山", province: "湖南", elevation: 1300, category: "五岳",
@@ -32,7 +32,7 @@ export const mountainData: any[] = [
     foods: [{"name":"南岳素斋","place":"南岳大庙附近","price":"30-50元","note":"寺庙素食，清淡可口"},{"name":"衡山豆腐","place":"南岳镇","price":"15-25元","note":"当地特色"}],
     transport: {"nearestAirport":"长沙黄花国际机场（约150km）","nearestStation":"衡山西站（高铁）","fromBeijing":"高铁约6小时","fromShanghai":"高铁约5小时","fromGuangzhou":"高铁约3小时"},
     photoSpots: ["祝融峰顶", "望月台", "雾凇观景处"],
-    latitude: "27.2543", longitude: "112.6552", imageUrl: "/mountains/hengshan.jpg"
+    latitude: "27.2543", longitude: "112.6552", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/d/d1/HengshanMountains.JPG", photos: ["https://upload.wikimedia.org/wikipedia/commons/d/d1/HengshanMountains.JPG", "https://upload.wikimedia.org/wikipedia/commons/9/90/Zhurong_Hall%2C_Mount_Heng_%28Hunan%29%2C_picture2.jpg", "https://upload.wikimedia.org/wikipedia/commons/b/b4/Zhurong_Hall%2C_Mount_Heng_%28Hunan%29%2C_picture3.jpg"]
   },
   {
     name: "嵩山", province: "河南", elevation: 1491, category: "五岳",
@@ -47,7 +47,7 @@ export const mountainData: any[] = [
     foods: [{"name":"登封烩面","place":"登封市区","price":"15-20元","note":"河南特色烩面"},{"name":"少林素饼","place":"少林寺景区","price":"10-20元","note":"少林寺特色糕点"}],
     transport: {"nearestAirport":"郑州新郑国际机场（约90km）","nearestStation":"郑州东站","fromBeijing":"高铁约3小时到郑州","fromShanghai":"高铁约4小时到郑州","fromGuangzhou":"高铁约5.5小时到郑州"},
     photoSpots: ["峻极峰顶", "三皇寨栈道", "少林寺山门"],
-    latitude: "34.4589", longitude: "112.9946", imageUrl: "/mountains/songshan.jpg"
+    latitude: "34.4589", longitude: "112.9946", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/0/0d/Songshan_temple.jpg", photos: ["https://upload.wikimedia.org/wikipedia/commons/0/0d/Songshan_temple.jpg", "https://upload.wikimedia.org/wikipedia/commons/d/d1/Fawang_Temple_Pagoda,_Dengfeng.jpg", "https://upload.wikimedia.org/wikipedia/commons/3/39/Shuce_Cliff.jpg"]
   },
   {
     name: "恒山", province: "山西", elevation: 2016, category: "五岳",
@@ -62,7 +62,7 @@ export const mountainData: any[] = [
     foods: [{"name":"浑源凉粉","place":"浑源县","price":"8-12元","note":"山西名小吃"},{"name":"莜面栲栳栳","place":"浑源县","price":"15-20元","note":"山西特色面食"}],
     transport: {"nearestAirport":"大同云冈机场（约80km）","nearestStation":"大同南站（高铁）","fromBeijing":"高铁约2小时到大同","fromShanghai":"高铁约7小时到大同","fromGuangzhou":"飞机约3小时到大同"},
     photoSpots: ["悬空寺全景", "天峰岭日出"],
-    latitude: "39.6757", longitude: "113.7397", imageUrl: "/mountains/hengshan-north.jpg"
+    latitude: "39.6757", longitude: "113.7397", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/3/32/Heng_Shan_%28Shanxi%29_viewpoint_100_m_below_the_summit.jpg", photos: ["https://upload.wikimedia.org/wikipedia/commons/3/32/Heng_Shan_%28Shanxi%29_viewpoint_100_m_below_the_summit.jpg", "https://upload.wikimedia.org/wikipedia/commons/7/79/Datong_314.jpg", "https://upload.wikimedia.org/wikipedia/commons/3/3f/Datong_344.jpg"]
   },
   {
     name: "泰山", province: "山东", elevation: 1545, category: "五岳",
@@ -77,7 +77,7 @@ export const mountainData: any[] = [
     foods: [{"name":"泰山煎饼","place":"泰山脚下","price":"5-10元","note":"山东名小吃"},{"name":"泰安豆腐宴","place":"泰安市区","price":"50-80元/人","note":"泰山特色宴席"}],
     transport: {"nearestAirport":"济南遥墙国际机场（约80km）","nearestStation":"泰安站（高铁）","fromBeijing":"高铁约2小时","fromShanghai":"高铁约3.5小时","fromGuangzhou":"高铁约7小时"},
     photoSpots: ["玉皇顶观日出", "十八盘仰望南天门", "五大夫松"],
-    latitude: "36.2563", longitude: "117.1009", imageUrl: "/mountains/taishan.jpg"
+    latitude: "36.2563", longitude: "117.1009", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/4/46/Mount_Tai.jpg", photos: ["https://upload.wikimedia.org/wikipedia/commons/4/46/Mount_Tai.jpg", "https://upload.wikimedia.org/wikipedia/commons/2/2e/50394-Taishan-Mount_Tai.jpg", "https://upload.wikimedia.org/wikipedia/commons/d/d5/50549-Mount_Tai-Taishan_%E6%B3%B0%E5%B1%B1.jpg"]
   },
   // ===== 五大佛教名山 =====
   {
@@ -93,7 +93,7 @@ export const mountainData: any[] = [
     foods: [{"name":"峨眉豆腐脑","place":"报国寺附近","price":"8-15元","note":"当地早餐"},{"name":"钵钵鸡","place":"峨眉山市","price":"30-50元","note":"四川名小吃"}],
     transport: {"nearestAirport":"成都双流国际机场（约150km）","nearestStation":"峨眉山站（高铁）","fromBeijing":"飞机约3小时到成都","fromShanghai":"飞机约3小时到成都","fromGuangzhou":"飞机约2.5小时到成都"},
     photoSpots: ["金顶日出", "云海佛光", "清音阁双桥"],
-    latitude: "29.5220", longitude: "103.3387", imageUrl: "/mountains/emeishan.jpg"
+    latitude: "29.5220", longitude: "103.3387", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/5/56/%E5%B3%A8%E7%9C%89%E5%B1%B1%E9%A3%8E%E6%99%AF%E5%8C%BA_Mount_Emei_Scenic_Area_07.jpg", photos: ["https://upload.wikimedia.org/wikipedia/commons/5/56/%E5%B3%A8%E7%9C%89%E5%B1%B1%E9%A3%8E%E6%99%AF%E5%8C%BA_Mount_Emei_Scenic_Area_07.jpg", "https://upload.wikimedia.org/wikipedia/commons/4/4f/Golden_Summit_%28Jinding%29_%2817264931860%29.jpg", "https://upload.wikimedia.org/wikipedia/commons/d/d0/Emeishan%2C_Leshan%2C_Sichuan%2C_China_-_panoramio_%283%29.jpg"]
   },
   {
     name: "五台山", province: "山西", elevation: 3061, category: "佛教名山",
@@ -108,7 +108,7 @@ export const mountainData: any[] = [
     foods: [{"name":"五台山素斋","place":"寺庙区","price":"20-40元","note":"佛教素食"},{"name":"台蘑炖鸡","place":"台怀镇","price":"60-80元","note":"五台山特产蘑菇"}],
     transport: {"nearestAirport":"太原武宿机场（约240km）","nearestStation":"五台山站","fromBeijing":"火车约5小时","fromShanghai":"飞机约2.5小时到太原","fromGuangzhou":"飞机约3小时到太原"},
     photoSpots: ["东台望海峰日出", "大白塔", "菩萨顶俯瞰"],
-    latitude: "39.0768", longitude: "113.5933", imageUrl: "/mountains/wutaishan.jpg"
+    latitude: "39.0768", longitude: "113.5933", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/5/5b/%E4%B8%AD%E5%9C%8B%E5%B1%B1%E8%A5%BF%E4%BA%94%E5%8F%B0%E5%B1%B1%E4%B8%96%E7%95%8C%E9%81%BA%E7%94%A2534.jpg", photos: ["https://upload.wikimedia.org/wikipedia/commons/5/5b/%E4%B8%AD%E5%9C%8B%E5%B1%B1%E8%A5%BF%E4%BA%94%E5%8F%B0%E5%B1%B1%E4%B8%96%E7%95%8C%E9%81%BA%E7%94%A2534.jpg", "https://upload.wikimedia.org/wikipedia/commons/0/0a/%E4%B8%AD%E5%9C%8B%E5%B1%B1%E8%A5%BF%E4%BA%94%E5%8F%B0%E5%B1%B1%E4%B8%96%E7%95%8C%E9%81%BA%E7%94%A2535.jpg", "https://www.westchinago.com/wp-content/uploads/2023/04/wutaishan-20230428i1w.jpg"]
   },
   {
     name: "九华山", province: "安徽", elevation: 1342, category: "佛教名山",
@@ -123,7 +123,7 @@ export const mountainData: any[] = [
     foods: [{"name":"九华素饼","place":"九华街","price":"10-20元","note":"当地特色糕点"},{"name":"石耳炖鸡","place":"九华山镇","price":"50-80元","note":"九华山特产"}],
     transport: {"nearestAirport":"池州九华山机场（约40km）","nearestStation":"池州站（高铁）","fromBeijing":"高铁约5小时","fromShanghai":"高铁约3小时","fromGuangzhou":"高铁约7小时"},
     photoSpots: ["天台正顶日出", "百岁宫远眺", "凤凰松"],
-    latitude: "30.4777", longitude: "117.8035", imageUrl: "/mountains/jiuhuashan.jpg"
+    latitude: "30.4777", longitude: "117.8035", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/8/8d/Mount_Jiuhua%2C_Anhui_Province_2.jpg", photos: ["https://upload.wikimedia.org/wikipedia/commons/8/8d/Mount_Jiuhua%2C_Anhui_Province_2.jpg", "https://upload.wikimedia.org/wikipedia/commons/c/c0/Jiuhuashan_yunhai.JPG", "https://upload.wikimedia.org/wikipedia/commons/f/f6/Jiuhua_Dayuan_Culture_Park.jpg"]
   },
   {
     name: "雪窦山", province: "浙江", elevation: 800, category: "佛教名山",
@@ -138,7 +138,7 @@ export const mountainData: any[] = [
     foods: [{"name":"奉化芋艿头","place":"溪口镇","price":"20-30元","note":"宁波名菜"},{"name":"千层饼","place":"溪口镇","price":"10-15元","note":"溪口特产"}],
     transport: {"nearestAirport":"宁波栎社机场（约30km）","nearestStation":"宁波站","fromBeijing":"飞机约2.5小时","fromShanghai":"高铁约2小时到宁波","fromGuangzhou":"飞机约2.5小时"},
     photoSpots: ["千丈岩瀑布", "弥勒大佛", "妙高台"],
-    latitude: "29.7800", longitude: "121.4700", imageUrl: "/mountains/xuedoushan.jpg"
+    latitude: "29.7800", longitude: "121.4700", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/6/6d/Qianzhang_Cliff_And_Waterfall,_Xuedou.jpeg", photos: ["https://upload.wikimedia.org/wikipedia/commons/6/6d/Qianzhang_Cliff_And_Waterfall,_Xuedou.jpeg", "https://upload.wikimedia.org/wikipedia/commons/f/f3/%E9%9B%AA%E7%AB%87%E5%B1%B1_-_panoramio.jpg", "https://upload.wikimedia.org/wikipedia/commons/8/8b/Xuedou_Si.jpg"]
   },
   {
     name: "普陀山", province: "浙江", elevation: 291, category: "佛教名山",
@@ -153,7 +153,7 @@ export const mountainData: any[] = [
     foods: [{"name":"普陀素斋","place":"寺庙区","price":"20-40元","note":"佛教素食"},{"name":"海鲜面","place":"码头附近","price":"30-60元","note":"舟山海鲜"}],
     transport: {"nearestAirport":"舟山普陀山机场","nearestStation":"宁波站（转船）","fromBeijing":"飞机约2.5小时到宁波","fromShanghai":"高铁约2小时到宁波再转船","fromGuangzhou":"飞机约3小时"},
     photoSpots: ["南海观音日落", "千步沙", "佛顶山俯瞰"],
-    latitude: "30.0098", longitude: "122.3868", imageUrl: "/mountains/putuoshan.jpg"
+    latitude: "30.0098", longitude: "122.3868", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/2/2f/Putuo_Shan_2006_1.JPG", photos: ["https://upload.wikimedia.org/wikipedia/commons/2/2f/Putuo_Shan_2006_1.JPG", "https://upload.wikimedia.org/wikipedia/commons/2/27/Puji_Temple_on_Putuo_Shan_island.JPG", "https://upload.wikimedia.org/wikipedia/commons/6/69/Putuo_Shan_2006_3.JPG"]
   },
   // ===== 徒步名山 =====
   {
@@ -169,7 +169,7 @@ export const mountainData: any[] = [
     foods: [{"name":"酥油茶","place":"雨崩村","price":"10-15元","note":"藏族传统饮品"},{"name":"青稞饼","place":"雨崩村","price":"5-10元","note":"藏区主食"}],
     transport: {"nearestAirport":"迪庆香格里拉机场（约180km）","nearestStation":"丽江站（火车）","fromBeijing":"飞机约4小时到丽江","fromShanghai":"飞机约4小时到丽江","fromGuangzhou":"飞机约3小时到丽江"},
     photoSpots: ["飞来寺日照金山", "冰湖", "雨崩村"],
-    latitude: "28.4333", longitude: "98.6833", imageUrl: "/mountains/meilixueshan.jpg"
+    latitude: "28.4333", longitude: "98.6833", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/f/ff/%E6%A2%85%E9%87%8C%E9%9B%AA%E5%B1%B1_-_%E6%A0%B8%E5%BF%83%E5%B1%B1%E5%B3%B0%E5%85%A8%E6%99%AF_-_2025-05-10_IMG_3463.jpg", photos: ["https://upload.wikimedia.org/wikipedia/commons/f/ff/%E6%A2%85%E9%87%8C%E9%9B%AA%E5%B1%B1_-_%E6%A0%B8%E5%BF%83%E5%B1%B1%E5%B3%B0%E5%85%A8%E6%99%AF_-_2025-05-10_IMG_3463.jpg", "https://plus.unsplash.com/premium_photo-1675315343167-0414307c9182?fm=jpg&q=85&w=3000", "https://upload.wikimedia.org/wikipedia/commons/9/9c/Meili_Snow_Mountain_at_Dusk.jpg"]
   },
   {
     name: "四姑娘山", province: "四川", elevation: 6250, category: "徒步",
@@ -184,7 +184,7 @@ export const mountainData: any[] = [
     foods: [{"name":"牦牛肉火锅","place":"日隆镇","price":"80-120元/人","note":"高原特色"},{"name":"藏式糌粑","place":"日隆镇","price":"10-15元","note":"藏族传统食品"}],
     transport: {"nearestAirport":"成都双流国际机场（约230km）","nearestStation":"成都站","fromBeijing":"飞机约3小时到成都","fromShanghai":"飞机约3小时到成都","fromGuangzhou":"飞机约2.5小时到成都"},
     photoSpots: ["猫鼻梁观日出", "长坪沟", "双桥沟倒影"],
-    latitude: "31.0900", longitude: "102.8800", imageUrl: "/mountains/siguniangshan.jpg"
+    latitude: "31.0900", longitude: "102.8800", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/4/49/Mount_Siguniang.jpg", photos: ["https://upload.wikimedia.org/wikipedia/commons/4/49/Mount_Siguniang.jpg", "https://upload.wikimedia.org/wikipedia/commons/7/72/%E5%9B%9B%E5%A7%91%E5%A8%98%E5%B1%B1%E6%99%AF%E5%8C%BA_Mount_Siguniang_Scenic_Area_45.jpg", "https://res.klook.com/image/upload/activities/nrsowppjuui2ezt39w4i.jpg"]
   },
   {
     name: "武功山", province: "江西", elevation: 1918, category: "徒步",
@@ -199,7 +199,7 @@ export const mountainData: any[] = [
     foods: [{"name":"萍乡炒粉","place":"萍乡市","price":"10-15元","note":"当地特色"},{"name":"莲花血鸭","place":"萍乡市","price":"40-60元","note":"江西名菜"}],
     transport: {"nearestAirport":"长沙黄花机场（约200km）","nearestStation":"萍乡北站（高铁）","fromBeijing":"高铁约6小时","fromShanghai":"高铁约5小时","fromGuangzhou":"高铁约4小时"},
     photoSpots: ["金顶日出", "高山草甸", "吊马桩云海"],
-    latitude: "27.4617", longitude: "114.1585", imageUrl: "/mountains/wugongshan.jpg"
+    latitude: "27.4617", longitude: "114.1585", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/c/c7/Wugongshan_8350.jpg", photos: ["https://upload.wikimedia.org/wikipedia/commons/c/c7/Wugongshan_8350.jpg", "https://upload.wikimedia.org/wikipedia/commons/5/58/WUGONGSHAN.jpg", "https://live.staticflickr.com/5561/14867708245_700079e53f_b.jpg"]
   },
   {
     name: "天柱山", province: "安徽", elevation: 1489, category: "徒步",
@@ -214,7 +214,7 @@ export const mountainData: any[] = [
     foods: [{"name":"天柱山瓦罐汤","place":"潜山市","price":"15-25元","note":"安徽特色"},{"name":"潜山板栗","place":"景区周边","price":"10-15元","note":"当地土特产"}],
     transport: {"nearestAirport":"合肥新桥机场（约180km）","nearestStation":"天柱山站","fromBeijing":"高铁约5小时","fromShanghai":"高铁约4小时","fromGuangzhou":"高铁约7小时"},
     photoSpots: ["天柱峰远眺", "飞来石", "炼丹湖"],
-    latitude: "30.7439", longitude: "116.4392", imageUrl: "/mountains/tianzhushan.jpg"
+    latitude: "30.7439", longitude: "116.4392", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/8/82/Tianzhu_Peak_(20170116142019).jpg", photos: ["https://upload.wikimedia.org/wikipedia/commons/8/82/Tianzhu_Peak_(20170116142019).jpg", "https://upload.wikimedia.org/wikipedia/commons/9/97/Mount_Tianzhu_%289568632580%29.jpg", "https://upload.wikimedia.org/wikipedia/commons/1/1d/Tianzhushan.JPG"]
   },
   {
     name: "长白山", province: "吉林", elevation: 2691, category: "徒步",
@@ -229,7 +229,7 @@ export const mountainData: any[] = [
     foods: [{"name":"朝鲜冷面","place":"二道白河镇","price":"15-25元","note":"延边特色"},{"name":"温泉煮蛋","place":"长白山景区","price":"10元","note":"用火山温泉煮的鸡蛋"}],
     transport: {"nearestAirport":"长白山机场","nearestStation":"安图西站（高铁）","fromBeijing":"飞机约2.5小时","fromShanghai":"飞机约3小时","fromGuangzhou":"飞机约4小时"},
     photoSpots: ["天池全景", "长白瀑布", "高山花园"],
-    latitude: "42.0030", longitude: "128.0600", imageUrl: "/mountains/changbaishan.jpg"
+    latitude: "42.0030", longitude: "128.0600", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/f/f0/%E9%95%B7%E7%99%BD%E5%B1%B1_Changbai_Mountain_-_panoramio.jpg", photos: ["https://upload.wikimedia.org/wikipedia/commons/f/f0/%E9%95%B7%E7%99%BD%E5%B1%B1_Changbai_Mountain_-_panoramio.jpg", "https://upload.wikimedia.org/wikipedia/commons/d/d0/Tianchi_Lake_Panorama.jpg", "https://upload.wikimedia.org/wikipedia/commons/6/69/20230604_Tian_Chi%2C_Changbai_Shan.jpg"]
   },
   // ===== 四大道教名山 =====
   {
@@ -245,7 +245,7 @@ export const mountainData: any[] = [
     foods: [{"name":"青城山老腊肉","place":"青城山镇","price":"40-60元","note":"当地名菜"},{"name":"白果炖鸡","place":"青城山镇","price":"50-80元","note":"道教养生菜"}],
     transport: {"nearestAirport":"成都双流机场（约68km）","nearestStation":"青城山站（高铁）","fromBeijing":"飞机约3小时到成都","fromShanghai":"飞机约3小时到成都","fromGuangzhou":"飞机约2.5小时到成都"},
     photoSpots: ["老君阁远眺", "天师洞", "幽静古道"],
-    latitude: "30.8981", longitude: "103.5719", imageUrl: "/mountains/qingchengshan.jpg"
+    latitude: "30.8981", longitude: "103.5719", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/d/d4/%E9%9D%92%E5%9F%8E%E5%B1%B1%E8%80%81%E5%90%9B%E9%98%81_Mount_Qingcheng_1.jpg", photos: ["https://upload.wikimedia.org/wikipedia/commons/d/d4/%E9%9D%92%E5%9F%8E%E5%B1%B1%E8%80%81%E5%90%9B%E9%98%81_Mount_Qingcheng_1.jpg", "https://upload.wikimedia.org/wikipedia/commons/c/cd/%E9%9D%92%E5%9F%8E%E5%B1%B1_Mount_Qingcheng_2017.jpg", "https://upload.wikimedia.org/wikipedia/commons/6/68/FRONT_GATE_OF_QINGCHENG.JPG"]
   },
   {
     name: "武当山", province: "湖北", elevation: 1612, category: "道教名山",
@@ -260,7 +260,7 @@ export const mountainData: any[] = [
     foods: [{"name":"武当道茶","place":"景区","price":"30-60元","note":"道教养生茶"},{"name":"武当山豆腐","place":"武当山镇","price":"15-25元","note":"当地名菜"}],
     transport: {"nearestAirport":"武当山机场（约15km）","nearestStation":"武当山西站（高铁）","fromBeijing":"高铁约5小时","fromShanghai":"高铁约5小时","fromGuangzhou":"高铁约5小时"},
     photoSpots: ["金顶日出", "南岩龙头香", "紫霄宫"],
-    latitude: "32.4000", longitude: "111.0044", imageUrl: "/mountains/wudangshan.jpg"
+    latitude: "32.4000", longitude: "111.0044", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/5/5d/%E6%AD%A6%E5%BD%93%E5%B1%B1%E9%87%91%E9%A1%B6_%2814923573151%29.jpg", photos: ["https://upload.wikimedia.org/wikipedia/commons/5/5d/%E6%AD%A6%E5%BD%93%E5%B1%B1%E9%87%91%E9%A1%B6_%2814923573151%29.jpg", "https://upload.wikimedia.org/wikipedia/commons/e/e5/Wudangshan_pic_9.jpg", "https://upload.wikimedia.org/wikipedia/commons/f/f5/Wudangshan_pic_4.jpg"]
   },
   {
     name: "龙虎山", province: "江西", elevation: 247, category: "道教名山",
@@ -275,7 +275,7 @@ export const mountainData: any[] = [
     foods: [{"name":"天师板栗烧鸡","place":"龙虎山镇","price":"40-60元","note":"龙虎山名菜"},{"name":"上清豆腐","place":"上清古镇","price":"15-25元","note":"千年古镇美食"}],
     transport: {"nearestAirport":"南昌昌北机场（约130km）","nearestStation":"鹰潭站","fromBeijing":"高铁约6小时","fromShanghai":"高铁约3小时","fromGuangzhou":"高铁约5小时"},
     photoSpots: ["仙水岩丹霞", "象鼻山", "竹筏上"],
-    latitude: "28.0820", longitude: "116.9500", imageUrl: "/mountains/longhushan.jpg"
+    latitude: "28.0820", longitude: "116.9500", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/c/cd/Longhushan_9263.jpg", photos: ["https://upload.wikimedia.org/wikipedia/commons/c/cd/Longhushan_9263.jpg", "https://upload.wikimedia.org/wikipedia/commons/4/41/Longhushan_9271.jpg", "https://upload.wikimedia.org/wikipedia/commons/6/6b/%E9%BE%99%E8%99%8E%E5%B1%B1.JPG"]
   },
   {
     name: "齐云山", province: "安徽", elevation: 585, category: "道教名山",
@@ -290,7 +290,7 @@ export const mountainData: any[] = [
     foods: [{"name":"齐云山豆干","place":"月华街","price":"10-15元","note":"山上道士手工制作"},{"name":"徽州臭鳜鱼","place":"休宁县","price":"50-80元","note":"徽菜代表"}],
     transport: {"nearestAirport":"黄山屯溪机场（约30km）","nearestStation":"黄山北站（高铁）","fromBeijing":"高铁约6小时","fromShanghai":"高铁约3.5小时","fromGuangzhou":"高铁约7小时"},
     photoSpots: ["月华街晨雾", "丹霞日落"],
-    latitude: "29.8000", longitude: "118.0500", imageUrl: "/mountains/qiyunshan.jpg"
+    latitude: "29.8000", longitude: "118.0500", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/9/91/Xiuning_Qiyun_Shan_2015.06.28_13-55-16.jpg", photos: ["https://upload.wikimedia.org/wikipedia/commons/9/91/Xiuning_Qiyun_Shan_2015.06.28_13-55-16.jpg", "https://upload.wikimedia.org/wikipedia/commons/f/f6/Xiuning_Qiyun_Shan_2015.06.28_15-04-37.jpg", "https://upload.wikimedia.org/wikipedia/commons/8/8c/Xiuning_Qiyun_Shan_2015.06.28_14-00-21.jpg"]
   },
   // ===== 地貌/网红 =====
   {
@@ -306,7 +306,7 @@ export const mountainData: any[] = [
     foods: [{"name":"臊子面","place":"太白县","price":"15-20元","note":"陕西名面"},{"name":"搅团","place":"太白县","price":"10-15元","note":"当地特色面食"}],
     transport: {"nearestAirport":"西安咸阳机场（约150km）","nearestStation":"眉县站","fromBeijing":"高铁约5小时到西安","fromShanghai":"高铁约6小时到西安","fromGuangzhou":"高铁约8小时到西安"},
     photoSpots: ["大爷海", "拔仙台顶", "云海"],
-    latitude: "33.9550", longitude: "107.7690", imageUrl: "/mountains/taibaishan.jpg"
+    latitude: "33.9550", longitude: "107.7690", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/0/03/TaibaiShanNFP.JPG", photos: ["https://upload.wikimedia.org/wikipedia/commons/0/03/TaibaiShanNFP.JPG", "https://upload.wikimedia.org/wikipedia/commons/6/69/Mountain_Taibai_No.1.jpg", "https://upload.wikimedia.org/wikipedia/commons/2/20/Mountain_Taibai_No.2.jpg"]
   },
   {
     name: "梵净山", province: "贵州", elevation: 2572, category: "地貌/网红",
@@ -321,7 +321,7 @@ export const mountainData: any[] = [
     foods: [{"name":"江口豆腐","place":"江口县","price":"15-25元","note":"贵州名菜"},{"name":"社饭","place":"江口县","price":"10-15元","note":"当地特色"}],
     transport: {"nearestAirport":"铜仁凤凰机场（约80km）","nearestStation":"铜仁南站（高铁）","fromBeijing":"飞机约3小时到铜仁","fromShanghai":"飞机约3小时到铜仁","fromGuangzhou":"高铁约5小时"},
     photoSpots: ["蘑菇石", "红云金顶", "万米睡佛"],
-    latitude: "27.9100", longitude: "108.6800", imageUrl: "/mountains/fanjingshan.jpg"
+    latitude: "27.9100", longitude: "108.6800", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/9/93/Buddhist_temple_on_Red_Clouds_Golden_Summit%2C_Mount_Fanjing%2C_31_March_2020b.jpg", photos: ["https://upload.wikimedia.org/wikipedia/commons/9/93/Buddhist_temple_on_Red_Clouds_Golden_Summit%2C_Mount_Fanjing%2C_31_March_2020b.jpg", "https://upload.wikimedia.org/wikipedia/commons/4/48/Jinding%2C_Mount_Fanjing%2C_31_March_2020b.jpg", "https://upload.wikimedia.org/wikipedia/commons/e/e7/Buddhist_temple_on_Red_Clouds_Golden_Summit%2C_Mount_Fanjing%2C_31_March_2020a.jpg"]
   },
   {
     name: "张家界", province: "湖南", elevation: 1262, category: "地貌/网红",
@@ -336,7 +336,7 @@ export const mountainData: any[] = [
     foods: [{"name":"三下锅","place":"张家界市区","price":"40-60元","note":"土家族名菜"},{"name":"血粑鸭","place":"张家界市区","price":"50-70元","note":"湘西特色"}],
     transport: {"nearestAirport":"张家界荷花机场","nearestStation":"张家界西站（高铁）","fromBeijing":"飞机约2.5小时","fromShanghai":"飞机约2.5小时","fromGuangzhou":"高铁约5小时"},
     photoSpots: ["哈利路亚山", "天门山", "天子山御笔峰"],
-    latitude: "29.3257", longitude: "110.4340", imageUrl: "/mountains/zhangjiajie.jpg"
+    latitude: "29.3257", longitude: "110.4340", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/7/77/1_tianzishan_wulingyuan_zhangjiajie_2012.jpg", photos: ["https://upload.wikimedia.org/wikipedia/commons/7/77/1_tianzishan_wulingyuan_zhangjiajie_2012.jpg", "https://images.unsplash.com/photo-1567266565446-d9c40ccf59a4?fm=jpg&q=85&fit=max&w=3840", "https://upload.wikimedia.org/wikipedia/commons/c/ce/Zhangjiajie_National_Forest_Park_38099-Zhangjiajie_(48757253473).jpg"]
   },
   {
     name: "老君山", province: "河南", elevation: 2217, category: "地貌/网红",
@@ -351,7 +351,7 @@ export const mountainData: any[] = [
     foods: [{"name":"栾川豆腐","place":"栾川县","price":"15-25元","note":"当地特色"},{"name":"山珍野味","place":"老君山镇","price":"50-80元","note":"山区特色菜"}],
     transport: {"nearestAirport":"洛阳北郊机场（约150km）","nearestStation":"洛阳龙门站（高铁）","fromBeijing":"高铁约4小时到洛阳","fromShanghai":"高铁约5小时到洛阳","fromGuangzhou":"高铁约6小时到洛阳"},
     photoSpots: ["金顶日出", "十里画屏", "云海"],
-    latitude: "33.7561", longitude: "111.6408", imageUrl: "/mountains/laojunshan.jpg"
+    latitude: "33.7561", longitude: "111.6408", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/c/c2/Laojun_Mountain_18_March_2025A.jpg", photos: ["https://upload.wikimedia.org/wikipedia/commons/c/c2/Laojun_Mountain_18_March_2025A.jpg", "https://upload.wikimedia.org/wikipedia/commons/f/fd/Laojunshan.jpg", "https://upload.wikimedia.org/wikipedia/commons/a/a1/%E6%B2%B3%E5%8D%97_%E8%80%81%E5%90%9B%E5%B1%B1_%E6%A0%88%E9%81%93_-_panoramio.jpg"]
   },
   {
     name: "北疆石林", province: "新疆", elevation: 1200, category: "地貌/网红",
@@ -366,7 +366,7 @@ export const mountainData: any[] = [
     foods: [{"name":"大盘鸡","place":"克拉玛依","price":"50-80元","note":"新疆经典菜"},{"name":"烤羊肉串","place":"乌尔禾","price":"5-10元/串","note":"新疆特色"}],
     transport: {"nearestAirport":"克拉玛依机场（约100km）","nearestStation":"克拉玛依站","fromBeijing":"飞机约4小时","fromShanghai":"飞机约5小时","fromGuangzhou":"飞机约5小时"},
     photoSpots: ["日落时分风蚀城堡", "星空"],
-    latitude: "46.0800", longitude: "84.7300", imageUrl: "/mountains/beijiangshilin.jpg"
+    latitude: "46.0800", longitude: "84.7300", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/7/7a/Devil%27s_City.jpg", photos: ["https://upload.wikimedia.org/wikipedia/commons/7/7a/Devil%27s_City.jpg", "https://upload.wikimedia.org/wikipedia/commons/2/20/%E4%B8%AD%E5%9B%BD%E6%96%B0%E7%96%86%E5%85%8B%E6%8B%89%E7%8E%9B%E4%BE%9D%E5%B8%82%E9%AD%94%E9%AC%BC%E5%9F%8E_China_Xinjiang%2C_Karamay_Ghost_City_China_X_-_panoramio.jpg"]
   },
   {
     name: "云台山", province: "河南", elevation: 1308, category: "地貌/网红",
@@ -381,7 +381,7 @@ export const mountainData: any[] = [
     foods: [{"name":"修武黑山羊","place":"修武县","price":"50-80元","note":"当地特色"},{"name":"焦作烩面","place":"焦作市","price":"15-20元","note":"河南名吃"}],
     transport: {"nearestAirport":"郑州新郑机场（约100km）","nearestStation":"修武西站（高铁）","fromBeijing":"高铁约3小时到郑州","fromShanghai":"高铁约4小时到郑州","fromGuangzhou":"高铁约5.5小时到郑州"},
     photoSpots: ["红石峡", "茱萸峰", "潭瀑峡"],
-    latitude: "35.4306", longitude: "113.3844", imageUrl: "/mountains/yuntaishan.jpg"
+    latitude: "35.4306", longitude: "113.3844", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/5/55/2009_Yuntai_Shan_29_-_Waterfall.jpg", photos: ["https://upload.wikimedia.org/wikipedia/commons/5/55/2009_Yuntai_Shan_29_-_Waterfall.jpg", "https://upload.wikimedia.org/wikipedia/commons/2/28/2018_Yuntai_Mountain_Red-stone_Gorge_05.jpg", "https://upload.wikimedia.org/wikipedia/commons/9/9f/2009_Yuntai_Shan_20.jpg"]
   },
   {
     name: "太姥山", province: "福建", elevation: 917, category: "地貌/网红",
@@ -396,7 +396,7 @@ export const mountainData: any[] = [
     foods: [{"name":"福鼎肉片","place":"福鼎市","price":"15-25元","note":"当地特色"},{"name":"白茶","place":"太姥山镇","price":"50-200元","note":"太姥山白茶原产地"}],
     transport: {"nearestAirport":"温州龙湾机场（约130km）","nearestStation":"太姥山站（动车）","fromBeijing":"飞机约2.5小时到温州","fromShanghai":"动车约4小时","fromGuangzhou":"飞机约2小时到温州"},
     photoSpots: ["夫妻峰日出", "一线天", "海上仙都"],
-    latitude: "27.0800", longitude: "120.2300", imageUrl: "/mountains/tailaoshan.jpg"
+    latitude: "27.0800", longitude: "120.2300", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/5/5c/Mount_Taimu_20230827.jpg", photos: ["https://upload.wikimedia.org/wikipedia/commons/5/5c/Mount_Taimu_20230827.jpg", "https://upload.wikimedia.org/wikipedia/commons/a/a5/Mount_Taimu%2C_Fuding_20230827.jpg", "https://upload.wikimedia.org/wikipedia/commons/0/07/Cliff_inscription_of_Mount_Taimu_20230827.jpg"]
   },
   {
     name: "武夷山", province: "福建", elevation: 2158, category: "地貌/网红",
@@ -411,7 +411,7 @@ export const mountainData: any[] = [
     foods: [{"name":"大红袍","place":"武夷山","price":"100-500元/盒","note":"世界级名茶"},{"name":"岚谷熏鹅","place":"武夷山市","price":"40-60元","note":"当地名菜"}],
     transport: {"nearestAirport":"武夷山机场","nearestStation":"武夷山北站（高铁）","fromBeijing":"高铁约7小时","fromShanghai":"高铁约4小时","fromGuangzhou":"高铁约6小时"},
     photoSpots: ["天游峰俯瞰", "九曲溪竹筏", "大红袍茶园"],
-    latitude: "27.7545", longitude: "118.0353", imageUrl: "/mountains/wuyishan.jpg"
+    latitude: "27.7545", longitude: "118.0353", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/8/82/Wuyi_Mountains_Sea_of_clouds_4.jpg", photos: ["https://upload.wikimedia.org/wikipedia/commons/8/82/Wuyi_Mountains_Sea_of_clouds_4.jpg", "https://upload.wikimedia.org/wikipedia/commons/f/f5/%E6%AD%A6%E5%A4%B7%E5%B1%B1%E7%80%91%E5%B8%83.JPG", "https://upload.wikimedia.org/wikipedia/commons/6/60/%E6%AD%A6%E5%A4%B7%E5%B1%B1%E5%B4%96%E5%A2%93%E7%BE%A4.jpg"]
   },
   {
     name: "三清山", province: "江西", elevation: 1819, category: "地貌/网红",
@@ -426,7 +426,7 @@ export const mountainData: any[] = [
     foods: [{"name":"三清山野生石鸡","place":"三清山镇","price":"50-80元","note":"当地特色"},{"name":"上饶鸡腿","place":"上饶市","price":"5-10元","note":"江西名小吃"}],
     transport: {"nearestAirport":"上饶三清山机场（约70km）","nearestStation":"上饶站（高铁）","fromBeijing":"高铁约6小时","fromShanghai":"高铁约3小时","fromGuangzhou":"高铁约6小时"},
     photoSpots: ["巨蟒出山", "司春女神", "西海岸日落"],
-    latitude: "28.9144", longitude: "118.0641", imageUrl: "/mountains/sanqingshan.jpg"
+    latitude: "28.9144", longitude: "118.0641", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/3/3d/19194-SanQingShan_(46786622272).jpg", photos: ["https://upload.wikimedia.org/wikipedia/commons/3/3d/19194-SanQingShan_(46786622272).jpg", "https://upload.wikimedia.org/wikipedia/commons/6/68/Sanqing_Shan_2013.06.15_11-55-39.jpg", "https://upload.wikimedia.org/wikipedia/commons/f/f1/Sanqingshan_sunrise_python.jpg"]
   },
   {
     name: "华东扇屏", province: "浙江", elevation: 523, category: "地貌/网红",
@@ -441,7 +441,7 @@ export const mountainData: any[] = [
     foods: [{"name":"当地农家菜","place":"景区周边","price":"30-50元","note":"浙江农家菜"}],
     transport: {"nearestAirport":"杭州萧山机场","nearestStation":"杭州东站","fromBeijing":"高铁约5小时到杭州","fromShanghai":"高铁约1小时到杭州","fromGuangzhou":"高铁约7小时到杭州"},
     photoSpots: ["扇形岩壁全景", "日落"],
-    latitude: "30.2000", longitude: "119.5000", imageUrl: "/mountains/huadongshan.jpg"
+    latitude: "30.2000", longitude: "119.5000", imageUrl: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=85", photos: ["https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=85", "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=1920&q=85"]
   },
   {
     name: "雁荡山", province: "浙江", elevation: 1150, category: "地貌/网红",
@@ -456,7 +456,7 @@ export const mountainData: any[] = [
     foods: [{"name":"乐清湾海鲜","place":"雁荡镇","price":"50-100元","note":"东海海鲜"},{"name":"番薯粉丝汤","place":"雁荡镇","price":"10-15元","note":"当地特色小吃"}],
     transport: {"nearestAirport":"温州龙湾机场（约80km）","nearestStation":"雁荡山站（动车）","fromBeijing":"飞机约2.5小时到温州","fromShanghai":"动车约4小时","fromGuangzhou":"飞机约2小时到温州"},
     photoSpots: ["灵峰夜景", "灵岩飞渡", "大龙湫瀑布"],
-    latitude: "28.3843", longitude: "121.0690", imageUrl: "/mountains/yandangshan.jpg"
+    latitude: "28.3843", longitude: "121.0690", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/3/3a/China2011_Zhejiang_YandangShan.jpg", photos: ["https://upload.wikimedia.org/wikipedia/commons/3/3a/China2011_Zhejiang_YandangShan.jpg", "https://upload.wikimedia.org/wikipedia/commons/3/32/%E7%8E%89%E7%94%91%E5%B3%B0%E5%85%A8%E8%B2%8C_-_panoramio.jpg", "https://upload.wikimedia.org/wikipedia/commons/2/2a/%E9%9B%81%E8%8D%A1%E5%B1%B1%E5%89%AA%E5%88%80%E5%B3%B0_-_panoramio.jpg"]
   },
   {
     name: "黄山", province: "安徽", elevation: 1864, category: "地貌/网红",
@@ -471,7 +471,7 @@ export const mountainData: any[] = [
     foods: [{"name":"毛豆腐","place":"汤口镇","price":"15-25元","note":"徽菜名品"},{"name":"臭鳜鱼","place":"汤口镇","price":"60-100元","note":"徽菜代表"}],
     transport: {"nearestAirport":"黄山屯溪机场","nearestStation":"黄山北站（高铁）","fromBeijing":"高铁约6小时","fromShanghai":"高铁约3小时","fromGuangzhou":"高铁约7小时"},
     photoSpots: ["光明顶日出", "迎客松", "西海大峡谷", "飞来石"],
-    latitude: "30.1373", longitude: "118.1693", imageUrl: "/mountains/huangshan.jpg"
+    latitude: "30.1373", longitude: "118.1693", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/1/1c/Mount-huangshan_53319731542_o.jpg", photos: ["https://upload.wikimedia.org/wikipedia/commons/1/1c/Mount-huangshan_53319731542_o.jpg", "https://upload.wikimedia.org/wikipedia/commons/0/01/Huangshan_mist_20141109.jpg", "https://upload.wikimedia.org/wikipedia/commons/8/82/Mount-huangshan_53319729912.jpg"]
   },
   {
     name: "庐山", province: "江西", elevation: 1474, category: "地貌/网红",
@@ -486,6 +486,6 @@ export const mountainData: any[] = [
     foods: [{"name":"庐山石鸡","place":"牯岭镇","price":"50-80元","note":"庐山名菜"},{"name":"庐山石鱼","place":"牯岭镇","price":"40-60元","note":"庐山三石之一"}],
     transport: {"nearestAirport":"九江庐山机场","nearestStation":"庐山站","fromBeijing":"高铁约5小时","fromShanghai":"高铁约4小时","fromGuangzhou":"高铁约5小时"},
     photoSpots: ["含鄱口日出", "三叠泉", "五老峰"],
-    latitude: "29.5628", longitude: "115.9867", imageUrl: "/mountains/lushan.jpg"
+    latitude: "29.5628", longitude: "115.9867", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/f/f8/Mount_Lu_16126-Lushan_%2849052353351%29.jpg", photos: ["https://upload.wikimedia.org/wikipedia/commons/f/f8/Mount_Lu_16126-Lushan_%2849052353351%29.jpg", "https://upload.wikimedia.org/wikipedia/commons/a/aa/Mount_Lu_16138-Lushan_%2849051841448%29.jpg", "https://upload.wikimedia.org/wikipedia/commons/7/7a/Mount_Lu_16146-Lushan_%2849052567367%29.jpg"]
   }
 ];

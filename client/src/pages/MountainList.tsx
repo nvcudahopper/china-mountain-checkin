@@ -154,8 +154,14 @@ function MountainCard({ mountain }: { mountain: Mountain }) {
       >
         {/* Cover image */}
         {mountain.imageUrl && (
-          <div className="h-32 w-full overflow-hidden">
-            <img src={mountain.imageUrl} alt={mountain.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+          <div className="relative h-36 w-full overflow-hidden bg-muted">
+            <img
+              src={mountain.imageUrl}
+              alt={mountain.name}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              loading="lazy"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-card/60 via-transparent to-transparent" />
           </div>
         )}
         <div className="p-4">

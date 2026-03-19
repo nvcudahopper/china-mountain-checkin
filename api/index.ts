@@ -78,7 +78,6 @@ class MemStorage {
       id: i + 1,
       highlights: m.highlights || null,
       photoSpots: m.photoSpots || null,
-      photos: null,
     }));
 
     [

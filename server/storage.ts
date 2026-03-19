@@ -43,7 +43,6 @@ export class MemStorage implements IStorage {
       id: i + 1,
       highlights: m.highlights || null,
       photoSpots: m.photoSpots || null,
-      photos: null,
     })) as Mountain[];
 
     // Create default users
